@@ -1,0 +1,174 @@
+---
+title: "Concepts"
+description: "Understand the building blocks of the LLM.kiwi API"
+---
+
+If you're new to APIs or AI chat, this page explains everything you need to know before using LLM.kiwi.
+
+## What is an API?
+
+API stands for **Application Programming Interface**. Think of it as a menu at a restaurant — you (the customer) tell the kitchen (the AI) what you want using a specific format, and they bring you the result. You never need to go into the kitchen yourself.
+
+With LLM.kiwi, you send a message over the internet and get an AI response back. That's it.
+
+## Base URL
+
+The **base URL** is the address where the API lives. For LLM.kiwi it is:
+
+```
+https://api.llm.kiwi/v1
+```
+
+Every request you send starts with this URL. Think of it like the street address of a building — you always go there first.
+
+## Authentication
+
+Every request must include your **API key** in the `Authorization` header. This is how the server knows it's you.
+
+```
+Authorization: Bearer sk_kiwi_abc123xyz
+```
+
+<Warning>
+  Never share your API key or commit it to public code repositories. If you accidentally expose it, revoke it immediately in the [dashboard](https://llm.kiwi/dashboard).
+</Warning>
+
+Your key always starts with `sk_kiwi_`. You can create and revoke keys from the [dashboard](https://llm.kiwi/dashboard).
+
+## Messages
+
+The chat completions API works by sending an array of **messages**. Each message has two parts:
+
+- **role** — who is speaking
+- **content** — what they said
+
+### Roles
+
+| Role | Meaning | Example |
+|------|---------|---------|
+| `system` | Instructions for the AI's behavior | "You are a helpful tutor." |
+| `user` | A message from you (the human) | "What is photosynthesis?" |
+| `assistant` | A previous response from the AI | "Photosynthesis is how plants make food." |
+
+A typical request looks like this:
+
+```json
+{
+  "messages": [
+    { "role": "system", "content": "You are a helpful assistant." },
+    { "role": "user", "content": "What is the capital of France?" }
+  ]
+}
+```
+
+### Multi-turn conversations
+
+To have a back-and-forth conversation, include previous messages in the array. The AI uses them as context:
+
+```json
+{
+  "messages": [
+    { "role": "user", "content": "My name is Alice." },
+    { "role": "assistant", "content": "Hi Alice! How can I help?" },
+    { "role": "user", "content": "What's my name?" }
+  ]
+}
+```
+
+The AI will answer "Alice" because it can see the earlier messages.
+
+## Models
+
+A **model** is the AI brain that generates responses. LLM.kiwi offers two:
+
+| Model | What it does |
+|-------|-------------|
+| `auto` | Automatically picks the best available model. Use this by default. |
+| `hrllm` | Dedicated Croatian-language model. Use only when you need Croatian output. |
+
+Set the model in your request body:
+
+```json
+{
+  "model": "auto",
+  "messages": [...]
+}
+```
+
+If you're unsure, always use `auto`. Read more in [Models](/models).
+
+## The full request lifecycle
+
+Here's what happens when you make a request:
+
+```mermaid
+sequenceDiagram
+    participant You
+    participant LLM.kiwi
+    participant AI Model
+
+    You->>LLM.kiwi: POST /v1/chat/completions (messages + model)
+    LLM.kiwi->>LLM.kiwi: Validate API key
+    LLM.kiwi->>AI Model: Route to model (or auto-select)
+    AI Model->>LLM.kiwi: Generate response
+    LLM.kiwi->>You: Return JSON response
+```
+
+## Response format
+
+The API returns JSON. The important parts are:
+
+```json
+{
+  "id": "chatcmpl-abc123",
+  "object": "chat.completion",
+  "model": "auto",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "Hello! How can I help you today?"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 12,
+    "completion_tokens": 9,
+    "total_tokens": 21
+  }
+}
+```
+
+| Field | Meaning |
+|-------|---------|
+| `choices[0].message.content` | The AI's actual response (what you want) |
+| `model` | Which model handled your request |
+| `usage` | How many tokens were consumed |
+| `finish_reason` | Why the model stopped (`stop` = normal end) |
+
+## Endpoints
+
+LLM.kiwi provides two endpoints:
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/v1/models` | List available models |
+| `POST` | `/v1/chat/completions` | Send a chat message and get a response |
+
+The chat completions endpoint is what you'll use 99% of the time.
+
+## What to do next
+
+<CardGroup>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Get your API key and make your first request.
+  </Card>
+  <Card title="Models" icon="brain" href="/models">
+    Learn about `auto` and `hrllm` in detail.
+  </Card>
+  <Card title="Code examples" icon="code" href="/examples">
+    Working examples in multiple languages.
+  </Card>
+</CardGroup>

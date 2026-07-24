@@ -10,10 +10,28 @@
   "favicon": "/favicon.svg",
   "navigation": {
     "pages": [
-      "index",
-      "quickstart",
-      "models",
-      "examples"
+      {
+        "group": "Get Started",
+        "pages": [
+          "index",
+          "quickstart",
+          "concepts"
+        ]
+      },
+      {
+        "group": "Using the API",
+        "pages": [
+          "models",
+          "examples",
+          "api-reference"
+        ]
+      },
+      {
+        "group": "Help",
+        "pages": [
+          "troubleshooting"
+        ]
+      }
     ]
   },
   "logo": {
@@ -30,7 +48,12 @@
         "label": "Chat",
         "href": "https://chat.llm.kiwi"
       }
-    ]
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Get API Key",
+      "href": "https://llm.kiwi/login"
+    }
   },
   "contextual": {
     "options": [

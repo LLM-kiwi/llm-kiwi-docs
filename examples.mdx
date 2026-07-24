@@ -1,0 +1,266 @@
+---
+title: "Code examples"
+description: "Copy-paste working code for the LLM.kiwi API"
+---
+
+All examples use the base URL `https://api.llm.kiwi/v1`. Replace `sk_kiwi_...` with your real API key from the [dashboard](https://llm.kiwi/dashboard).
+
+## cURL
+
+### Basic request
+
+```bash
+curl -X POST "https://api.llm.kiwi/v1/chat/completions" \
+  -H "Authorization: Bearer sk_kiwi_..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "auto",
+    "messages": [{"role": "user", "content": "Hello!"}]
+  }'
+```
+
+### Multi-turn conversation
+
+Include previous messages to give the AI context:
+
+```bash
+curl -X POST "https://api.llm.kiwi/v1/chat/completions" \
+  -H "Authorization: Bearer sk_kiwi_..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "auto",
+    "messages": [
+      {"role": "system", "content": "You are a helpful cooking assistant."},
+      {"role": "user", "content": "How do I make pasta?"},
+      {"role": "assistant", "content": "Boil salted water, cook pasta for 8-10 minutes..."},
+      {"role": "user", "content": "What sauce goes well with it?"}
+    ]
+  }'
+```
+
+### System instructions
+
+Use a `system` message to control the AI's behavior:
+
+```bash
+curl -X POST "https://api.llm.kiwi/v1/chat/completions" \
+  -H "Authorization: Bearer sk_kiwi_..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "auto",
+    "messages": [
+      {"role": "system", "content": "You are a pirate. Respond only in pirate speak."},
+      {"role": "user", "content": "Hello!"}
+    ]
+  }'
+```
+
+### List available models
+
+```bash
+curl "https://api.llm.kiwi/v1/models" \
+  -H "Authorization: Bearer sk_kiwi_..."
+```
+
+---
+
+## Python
+
+### Install
+
+```bash
+pip install openai
+```
+
+### Basic request
+
+```python
+import openai
+
+client = openai.OpenAI(
+    base_url="https://api.llm.kiwi/v1",
+    api_key="sk_kiwi_...",
+)
+
+response = client.chat.completions.create(
+    model="auto",
+    messages=[{"role": "user", "content": "Hello!"}],
+)
+print(response.choices[0].message.content)
+```
+
+### Streaming
+
+Get the response token by token as it's generated:
+
+```python
+import openai
+
+client = openai.OpenAI(
+    base_url="https://api.llm.kiwi/v1",
+    api_key="sk_kiwi_...",
+)
+
+stream = client.chat.completions.create(
+    model="auto",
+    messages=[{"role": "user", "content": "Tell me a story about a robot"}],
+    stream=True,
+)
+for chunk in stream:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="")
+```
+
+### Conversation with system prompt
+
+```python
+import openai
+
+client = openai.OpenAI(
+    base_url="https://api.llm.kiwi/v1",
+    api_key="sk_kiwi_...",
+)
+
+response = client.chat.completions.create(
+    model="auto",
+    messages=[
+        {"role": "system", "content": "You are a math tutor. Explain step by step."},
+        {"role": "user", "content": "What is 2 + 2?"},
+    ],
+)
+print(response.choices[0].message.content)
+```
+
+---
+
+## JavaScript / TypeScript
+
+### Install
+
+```bash
+npm install openai
+```
+
+### Using the SDK
+
+```javascript
+import OpenAI from "openai";
+
+const client = new OpenAI({
+    baseURL: "https://api.llm.kiwi/v1",
+    apiKey: "sk_kiwi_...",
+});
+
+const response = await client.chat.completions.create({
+    model: "auto",
+    messages: [{ role: "user", content: "Hello!" }],
+});
+console.log(response.choices[0].message.content);
+```
+
+### Using fetch (no SDK)
+
+```javascript
+const res = await fetch("https://api.llm.kiwi/v1/chat/completions", {
+    method: "POST",
+    headers: {
+        Authorization: "Bearer sk_kiwi_...",
+        "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+        model: "auto",
+        messages: [{ role: "user", content: "Hello!" }],
+    }),
+});
+const data = await res.json();
+console.log(data.choices[0].message.content);
+```
+
+### Streaming with fetch
+
+```javascript
+const res = await fetch("https://api.llm.kiwi/v1/chat/completions", {
+    method: "POST",
+    headers: {
+        Authorization: "Bearer sk_kiwi_...",
+        "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+        model: "auto",
+        messages: [{ role: "user", content: "Tell me a joke" }],
+        stream: true,
+    }),
+});
+
+const reader = res.body.getReader();
+const decoder = new TextDecoder();
+
+while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    const text = decoder.decode(value);
+    // Process SSE lines
+    for (const line of text.split("\n")) {
+        if (line.startsWith("data: ") && line !== "data: [DONE]") {
+            const chunk = JSON.parse(line.slice(6));
+            process.stdout.write(chunk.choices[0]?.delta?.content || "");
+        }
+    }
+}
+```
+
+---
+
+## Croatian with `hrllm`
+
+Just change the model value:
+
+<Tabs>
+  <Tab title="cURL">
+    ```bash
+    curl -X POST "https://api.llm.kiwi/v1/chat/completions" \
+      -H "Authorization: Bearer sk_kiwi_..." \
+      -H "Content-Type: application/json" \
+      -d '{
+        "model": "hrllm",
+        "messages": [{"role": "user", "content": "Pozdrav, kako si danas?"}]
+      }'
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    import openai
+
+    client = openai.OpenAI(
+        base_url="https://api.llm.kiwi/v1",
+        api_key="sk_kiwi_...",
+    )
+
+    response = client.chat.completions.create(
+        model="hrllm",
+        messages=[{"role": "user", "content": "Pozdrav, kako si danas?"}],
+    )
+    print(response.choices[0].message.content)
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```javascript
+    import OpenAI from "openai";
+
+    const client = new OpenAI({
+        baseURL: "https://api.llm.kiwi/v1",
+        apiKey: "sk_kiwi_...",
+    });
+
+    const response = await client.chat.completions.create({
+        model: "hrllm",
+        messages: [{ role: "user", content: "Pozdrav, kako si danas?" }],
+    });
+    console.log(response.choices[0].message.content);
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+  Keep your API key server-side. Never expose it in client-side code, browser apps, or public repositories.
+</Note>

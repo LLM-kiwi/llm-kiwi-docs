@@ -1,0 +1,173 @@
+---
+title: "Glossary"
+description: "Every term you need to know, explained simply"
+---
+
+New to APIs and AI? This page defines every term you'll encounter in these docs. Bookmark it and come back whenever something is unclear.
+
+## API terms
+
+<AccordionGroup>
+  <Accordion title="API (Application Programming Interface)">
+    A way for two programs to talk to each other over the internet. You send a request, the server processes it, and sends back a response. Think of it like texting a restaurant — you send your order, they send back food.
+
+    With LLM.kiwi, your code sends a message to our server, and we send back an AI-generated response.
+  </Accordion>
+
+  <Accordion title="Endpoint">
+    A specific URL where you send requests. LLM.kiwi has two endpoints:
+    - `POST /v1/chat/completions` — send a message, get an AI response
+    - `GET /v1/models` — list available models
+
+    You'll use the chat endpoint 99% of the time.
+  </Accordion>
+
+  <Accordion title="Base URL">
+    The root address of the API. For LLM.kiwi, it is:
+
+    ```
+    https://api.llm.kiwi/v1
+    ```
+
+    Every request starts with this. It's like the street address of a building.
+  </Accordion>
+
+  <Accordion title="Request">
+    The message you send to the API. It includes your API key, the model you want, and the messages you want the AI to process. Sent over HTTPS (the same protocol your browser uses).
+
+    A typical request looks like:
+
+    ```json
+    {
+      "model": "auto",
+      "messages": [{"role": "user", "content": "Hello!"}]
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Response">
+    What the API sends back. It's a JSON object containing the AI's reply, which model was used, and how many tokens were consumed.
+
+    ```json
+    {
+      "choices": [{"message": {"content": "Hi there!"}}],
+      "model": "auto",
+      "usage": {"total_tokens": 12}
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="JSON (JavaScript Object Notation)">
+    The format used for sending and receiving data. It looks like a JavaScript object — curly braces, key-value pairs. Every API request and response uses JSON.
+
+    ```json
+    {"key": "value", "count": 42}
+    ```
+  </Accordion>
+
+  <Accordion title="HTTP Method">
+    The type of request you make. LLM.kiwi uses two:
+    - **POST** — send data to create something (chat completions)
+    - **GET** — retrieve data (list models)
+  </Accordion>
+
+  <Accordion title="Header">
+    Extra information sent with your request. The most important one is `Authorization`, which carries your API key. Headers are like the metadata on a letter — they tell the server who you are and what format the data is in.
+  </Accordion>
+</AccordionGroup>
+
+## Authentication terms
+
+<AccordionGroup>
+  <Accordion title="API Key">
+    A secret code that identifies you. It starts with `sk_kiwi_` and you get it from the [dashboard](https://llm.kiwi/dashboard). You include it in every request so the server knows it's you.
+
+    Think of it like a password — never share it or commit it to public code.
+  </Accordion>
+
+  <Accordion title="Bearer Token">
+    The type of authentication LLM.kiwi uses. In your request header, you write:
+
+    ```
+    Authorization: Bearer sk_kiwi_...
+    ```
+
+    "Bearer" means "whoever carries this token is authorized." It's a standard format used by most APIs.
+  </Accordion>
+
+  <Accordion title="Revoking a Key">
+    Deleting an API key so it stops working. Do this if you accidentally expose it (e.g., commit it to a public GitHub repo). Create a new key in the [dashboard](https://llm.kiwi/dashboard).
+  </Accordion>
+</AccordionGroup>
+
+## AI / LLM terms
+
+<AccordionGroup>
+  <Accordion title="LLM (Large Language Model)">
+    The AI system that generates text. It's trained on massive amounts of text data and can predict what words come next. When you send "Hello!", the LLM generates a response like "Hi there! How can I help?"
+
+    LLM.kiwi gives you access to LLMs without you having to run them yourself.
+  </Accordion>
+
+  <Accordion title="Model">
+    A specific AI brain. LLM.kiwi offers:
+    - **auto** — picks the best model for your request
+    - **hrllm** — optimized for Croatian text
+
+    You specify the model in every request with `"model": "auto"`.
+  </Accordion>
+
+  <Accordion title="Token">
+    A chunk of text. Roughly, 1 token ≈ 0.75 words in English. "Hello world" is 2 tokens. "photosynthesis" might be 3-4 tokens. Every request consumes tokens, and token count affects response speed and limits.
+
+    LLM.kiwi tracks token usage in the `usage` field of every response.
+  </Accordion>
+
+  <Accordion title="Prompt">
+    The text you send to the AI. In chat completions, your prompt is the array of messages. The AI's job is to generate a completion (response) based on your prompt.
+  </Accordion>
+
+  <Accordion title="System Message">
+    A special message with role `system` that sets the AI's behavior. It goes at the beginning of your messages array and tells the AI how to act.
+
+    ```json
+    {"role": "system", "content": "You are a pirate. Respond only in pirate speak."}
+    ```
+  </Accordion>
+
+  <Accordion title="Temperature">
+    A number between 0 and 2 that controls randomness. Lower values (e.g., 0.1) make the AI more focused and predictable. Higher values (e.g., 1.5) make it more creative and random. Default works well for most cases.
+  </Accordion>
+
+  <Accordion title="Streaming">
+    Getting the AI's response word by word as it's generated, instead of waiting for the full response. Like watching someone type in real-time vs. receiving a finished letter. Enabled with `"stream": true` in your request.
+  </Accordion>
+
+  <Accordion title="Context Window">
+    The maximum amount of text a model can "see" at once — your messages plus the AI's response. If your conversation gets too long, older messages get cut off. This is measured in tokens.
+  </Accordion>
+
+  <Accordion title="Finish Reason">
+    Tells you why the AI stopped generating. Common values:
+    - `stop` — the AI finished naturally
+    - `length` — hit the token limit before finishing
+
+    Check this in the response's `choices[0].finish_reason` field.
+  </Accordion>
+</AccordionGroup>
+
+## Infrastructure terms
+
+<AccordionGroup>
+  <Accordion title="Rate Limiting">
+    A cap on how many requests you can make in a given time period. This prevents abuse and keeps the service stable for everyone. If you hit the limit, you get a `429` error. Wait a moment and retry.
+  </Accordion>
+
+  <Accordion title="CDN (Content Delivery Network)">
+    A network of servers distributed worldwide. LLM.kiwi uses Cloudflare's CDN so requests are processed close to you, no matter where you are. This means faster responses.
+  </Accordion>
+
+  <Accordion title="SDK (Software Development Kit)">
+    A library that makes the API easier to use in your programming language. Instead of writing raw HTTP requests, you call simple functions. LLM.kiwi works with the official OpenAI SDKs for Python and JavaScript.
+  </Accordion>
+</AccordionGroup>

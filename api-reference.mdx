@@ -1,0 +1,224 @@
+---
+title: "API Reference"
+description: "Endpoints, request formats, response shapes, and error codes"
+---
+
+## Base URL
+
+```
+https://api.llm.kiwi/v1
+```
+
+All endpoints are prefixed with `/v1`.
+
+## Authentication
+
+Every request requires your API key in the `Authorization` header:
+
+```
+Authorization: Bearer sk_kiwi_...
+```
+
+## Endpoints
+
+### List models
+
+```
+GET /v1/models
+```
+
+Returns all available models. Use this to verify your API key works.
+
+**Request:**
+
+```bash
+curl "https://api.llm.kiwi/v1/models" \
+  -H "Authorization: Bearer sk_kiwi_..."
+```
+
+**Response:**
+
+```json
+{
+  "object": "list",
+  "data": [
+    {
+      "id": "auto",
+      "object": "model",
+      "owned_by": "llm-kiwi"
+    },
+    {
+      "id": "hrllm",
+      "object": "model",
+      "owned_by": "llm-kiwi"
+    }
+  ]
+}
+```
+
+---
+
+### Chat completions
+
+```
+POST /v1/chat/completions
+```
+
+Send a conversation and get an AI response. This is the main endpoint you'll use.
+
+**Request body:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `model` | string | Yes | `"auto"` or `"hrllm"` |
+| `messages` | array | Yes | Array of message objects |
+| `temperature` | number | No | Randomness (0-2, default varies) |
+| `max_tokens` | integer | No | Maximum tokens in the response |
+| `stream` | boolean | No | Enable streaming responses (default: false) |
+
+**Message object:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `role` | string | Yes | `"system"`, `"user"`, or `"assistant"` |
+| `content` | string | Yes | The message text |
+
+**Minimal request:**
+
+```json
+{
+  "model": "auto",
+  "messages": [
+    { "role": "user", "content": "Hello!" }
+  ]
+}
+```
+
+**Full request:**
+
+```json
+{
+  "model": "auto",
+  "messages": [
+    { "role": "system", "content": "You are a helpful assistant." },
+    { "role": "user", "content": "What is the meaning of life?" }
+  ],
+  "temperature": 0.7,
+  "max_tokens": 500
+}
+```
+
+**Response:**
+
+```json
+{
+  "id": "chatcmpl-abc123",
+  "object": "chat.completion",
+  "created": 1700000000,
+  "model": "auto",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "The meaning of life is a philosophical question..."
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 15,
+    "completion_tokens": 50,
+    "total_tokens": 65
+  }
+}
+```
+
+**Response fields:**
+
+| Field | Description |
+|-------|-------------|
+| `id` | Unique identifier for this completion |
+| `model` | The model that handled the request |
+| `choices[0].message.content` | The AI's response text |
+| `choices[0].finish_reason` | Why generation stopped: `stop` (normal), `length` (hit token limit) |
+| `usage.prompt_tokens` | Tokens in your input |
+| `usage.completion_tokens` | Tokens in the AI's response |
+| `usage.total_tokens` | Total tokens consumed |
+
+---
+
+## Error codes
+
+| Status | Meaning | Fix |
+|--------|---------|-----|
+| `401` | Invalid or missing API key | Check your `Authorization` header and API key |
+| `403` | Key lacks permission | Create a new key in the [dashboard](https://llm.kiwi/dashboard) |
+| `429` | Rate limit exceeded | Wait a moment and retry, or reduce request frequency |
+| `500` | Server error | Retry after a few seconds |
+
+**Error response format:**
+
+```json
+{
+  "error": {
+    "message": "Invalid API key",
+    "type": "invalid_request_error",
+    "code": "invalid_api_key"
+  }
+}
+```
+
+<Note>
+  If you keep getting 401 errors, regenerate your key in the [dashboard](https://llm.kiwi/dashboard).
+</Note>
+
+## Request examples
+
+<Tabs>
+  <Tab title="cURL">
+    ```bash
+    curl -X POST "https://api.llm.kiwi/v1/chat/completions" \
+      -H "Authorization: Bearer sk_kiwi_..." \
+      -H "Content-Type: application/json" \
+      -d '{
+        "model": "auto",
+        "messages": [{"role": "user", "content": "Hello!"}]
+      }'
+    ```
+  </Tab>
+
+  <Tab title="Python">
+    ```python
+    import openai
+
+    client = openai.OpenAI(
+        base_url="https://api.llm.kiwi/v1",
+        api_key="sk_kiwi_...",
+    )
+
+    response = client.chat.completions.create(
+        model="auto",
+        messages=[{"role": "user", "content": "Hello!"}],
+    )
+    print(response.choices[0].message.content)
+    ```
+  </Tab>
+
+  <Tab title="JavaScript">
+    ```javascript
+    import OpenAI from "openai";
+
+    const client = new OpenAI({
+        baseURL: "https://api.llm.kiwi/v1",
+        apiKey: "sk_kiwi_...",
+    });
+
+    const response = await client.chat.completions.create({
+        model: "auto",
+        messages: [{ role: "user", content: "Hello!" }],
+    });
+    console.log(response.choices[0].message.content);
+    ```
+  </Tab>
+</Tabs>

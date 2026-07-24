@@ -1,14 +1,17 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "LLM.kiwi",
+  "theme": "palm",
+  "name": "LLM.kiwifree API docs and how to use",
   "description": "Free AI API — OpenAI-compatible chat completions. No credit card required.",
   "colors": {
     "primary": "#16A34A",
     "light": "#07C983",
     "dark": "#15803D"
   },
-  "favicon": "/favicon.svg",
+  "favicon": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/light.svg"
+  },
   "banner": {
     "content": "[**Open Dashboard**](https://llm.kiwi/dashboard) — Create API keys, manage your account, and monitor usage.",
     "dismissible": true,
@@ -97,5 +100,8 @@
       "github": "https://github.com/LLM-kiwi",
       "linkedin": "https://linkedin.com/company/llm-kiwi"
     }
+  },
+  "background": {
+    "decoration": "gradient"
   }
 }

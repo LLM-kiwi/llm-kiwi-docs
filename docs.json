@@ -91,7 +91,11 @@
   "contextual": {
     "options": [
       "copy",
-      "view"
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "vscode"
     ]
   },
   "footer": {
@@ -103,5 +107,16 @@
   },
   "background": {
     "decoration": "gradient"
+  },
+  "metadata": {
+    "timestamp": true
+  },
+  "markdown": {
+    "schema": true
+  },
+  "api": {
+    "examples": {
+      "prefill": true
+    }
   }
 }

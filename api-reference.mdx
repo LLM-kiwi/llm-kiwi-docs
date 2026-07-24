@@ -27,7 +27,7 @@ Authorization: Bearer sk_kiwi_...
 GET /v1/models
 ```
 
-Returns all available models.
+Returns all available models. Use this to verify your API key works.
 
 **Request:**
 
@@ -64,7 +64,7 @@ curl "https://api.llm.kiwi/v1/models" \
 POST /v1/chat/completions
 ```
 
-Send a conversation and get an AI response.
+Send a conversation and get an AI response. This is the main endpoint you'll use.
 
 **Request body:**
 
@@ -172,3 +172,53 @@ Send a conversation and get an AI response.
 <Note>
   If you keep getting 401 errors, regenerate your key in the [dashboard](https://llm.kiwi/dashboard).
 </Note>
+
+## Request examples
+
+<Tabs>
+  <Tab title="cURL">
+    ```bash
+    curl -X POST "https://api.llm.kiwi/v1/chat/completions" \
+      -H "Authorization: Bearer sk_kiwi_..." \
+      -H "Content-Type: application/json" \
+      -d '{
+        "model": "auto",
+        "messages": [{"role": "user", "content": "Hello!"}]
+      }'
+    ```
+  </Tab>
+
+  <Tab title="Python">
+    ```python
+    import openai
+
+    client = openai.OpenAI(
+        base_url="https://api.llm.kiwi/v1",
+        api_key="sk_kiwi_...",
+    )
+
+    response = client.chat.completions.create(
+        model="auto",
+        messages=[{"role": "user", "content": "Hello!"}],
+    )
+    print(response.choices[0].message.content)
+    ```
+  </Tab>
+
+  <Tab title="JavaScript">
+    ```javascript
+    import OpenAI from "openai";
+
+    const client = new OpenAI({
+        baseURL: "https://api.llm.kiwi/v1",
+        apiKey: "sk_kiwi_...",
+    });
+
+    const response = await client.chat.completions.create({
+        model: "auto",
+        messages: [{ role: "user", content: "Hello!" }],
+    });
+    console.log(response.choices[0].message.content);
+    ```
+  </Tab>
+</Tabs>

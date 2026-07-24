@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mintlify Starter Kit",
+  "name": "LLM.kiwi",
   "colors": {
     "primary": "#16A34A",
     "light": "#07C983",
@@ -10,28 +10,11 @@
   "favicon": "/favicon.svg",
   "navigation": {
     "pages": [
-      {
-        "group": "Getting Started",
-        "pages": [
-          "index",
-          "quickstart"
-        ]
-      }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
+      "index",
+      "quickstart",
+      "models",
+      "examples"
+    ]
   },
   "logo": {
     "light": "/logo/light.svg",
@@ -40,33 +23,26 @@
   "navbar": {
     "links": [
       {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "label": "Dashboard",
+        "href": "https://llm.kiwi/dashboard"
+      },
+      {
+        "label": "Chat",
+        "href": "https://chat.llm.kiwi"
       }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://app.mintlify.com"
-    }
+    ]
   },
   "contextual": {
     "options": [
       "copy",
-      "view",
-      "chatgpt",
-      "claude",
-      "perplexity",
-      "mcp",
-      "cursor",
-      "vscode"
+      "view"
     ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "x": "https://x.com/LLMkiwi",
+      "github": "https://github.com/LLM-kiwi",
+      "linkedin": "https://linkedin.com/company/llm-kiwi"
     }
   }
 }

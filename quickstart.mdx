@@ -1,47 +1,84 @@
 ---
 title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+description: "Get up and running with the LLM.kiwi API in minutes"
 ---
-
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
-
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
 
 ## Prerequisites
 
-Before you begin, you must have:
+- A free account at [llm.kiwi](https://llm.kiwi/login) (no credit card)
+- An API key from the [dashboard](https://llm.kiwi/dashboard)
 
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
-
-## Get started
+## Steps
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
-
-    ```bash
-    npm install your-package
-    ```
+  <Step title="Create an account">
+    Sign in with Google or GitHub at [llm.kiwi](https://llm.kiwi/login).
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
-
-    ```bash
-    your-cli init
-    ```
+  <Step title="Generate an API key">
+    Open the [dashboard](https://llm.kiwi/dashboard), navigate to **API Keys**, and create a new key. It will start with `sk_kiwi_...`. Keep it secret — do not expose it in client-side code.
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
+  <Step title="Make your first request">
+    Use any OpenAI-compatible tool. Here's cURL:
 
     ```bash
-    your-cli start
+    curl -X POST "https://api.llm.kiwi/v1/chat/completions" \
+      -H "Authorization: Bearer sk_kiwi_..." \
+      -H "Content-Type: application/json" \
+      -d '{
+        "model": "auto",
+        "messages": [{"role": "user", "content": "Hello!"}]
+      }'
     ```
   </Step>
 </Steps>
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
+<Check>
+  You should receive a JSON response with a `choices` array containing the model's reply.
+</Check>
 
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
-</Tip>
+## Using Python
+
+Install the OpenAI SDK:
+
+```bash
+pip install openai
+```
+
+```python
+import openai
+
+client = openai.OpenAI(
+    base_url="https://api.llm.kiwi/v1",
+    api_key="sk_kiwi_...",
+)
+
+response = client.chat.completions.create(
+    model="auto",
+    messages=[{"role": "user", "content": "Hello!"}],
+)
+print(response.choices[0].message.content)
+```
+
+## Using JavaScript / TypeScript
+
+```javascript
+const res = await fetch("https://api.llm.kiwi/v1/chat/completions", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer sk_kiwi_...",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    model: "auto",
+    messages: [{ role: "user", content: "Hello!" }],
+  }),
+});
+const data = await res.json();
+console.log(data.choices[0].message.content);
+```
+
+<Note>
+  Replace `sk_kiwi_...` with your real API key. Keep production keys server-side.
+</Note>
+
+Need help? Reach out at [support@llm.kiwi](mailto:support@llm.kiwi).

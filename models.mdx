@@ -1,0 +1,37 @@
+---
+title: "Models"
+description: "Available AI models on LLM.kiwi"
+---
+
+LLM.kiwi offers two models. Use `auto` unless you have a specific reason to pin one.
+
+## `auto`
+
+The default and recommended choice. The API automatically routes your request to the best available model. As new models ship, your integration stays current with zero code changes.
+
+```json
+{
+  "model": "auto"
+}
+```
+
+## `hrllm`
+
+A dedicated model for Croatian-language generation. Pin this only when you specifically need Croatian-language behavior in a tested workflow.
+
+```json
+{
+  "model": "hrllm"
+}
+```
+
+## When to use which
+
+| Model | Use case |
+|-------|----------|
+| `auto` | General-purpose usage, prototyping, anything where you want the best available model |
+| `hrllm` | Croatian-language generation, workflows requiring consistent Croatian output |
+
+<Note>
+  If you're unsure, start with `auto`. You can always switch to `hrllm` later if needed.
+</Note>

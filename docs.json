@@ -1,8 +1,8 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "palm",
-  "name": "LLM.kiwifree API docs and how to use",
-  "description": "Free AI API — OpenAI-compatible chat completions. No credit card required.",
+  "name": "LLM.kiwi Docs",
+  "description": "Free AI API — OpenAI-compatible chat completions. No credit card required. Get started in minutes.",
   "colors": {
     "primary": "#16A34A",
     "light": "#07C983",

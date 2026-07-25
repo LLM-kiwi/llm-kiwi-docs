@@ -1,0 +1,152 @@
+---
+title: "Error Reference"
+description: "Complete reference of API error codes, causes, and how to fix them"
+---
+
+All errors return a JSON response with an `error` object. Here's the complete list of errors you might encounter.
+
+## Error response format
+
+Every error follows this structure:
+
+```json
+{
+  "error": {
+    "message": "Description of what went wrong",
+    "type": "error_category",
+    "code": "error_code"
+  }
+}
+```
+
+## 400 — Bad Request
+
+Something is wrong with your request format.
+
+| Code | Cause | Fix |
+|------|-------|-----|
+| `invalid_request_error: Missing model` | You didn't include the `model` field | Add `"model": "auto"` to your request body |
+| `invalid_request_error: Missing messages` | You didn't include the `messages` array | Add a `messages` array with at least one message |
+| `invalid_request_error: messages not an array` | `messages` is not a JSON array | Wrap messages in `[` and `]` |
+| `invalid_request_error: Invalid model` | Model name is not recognized | Use `"auto"` or `"hrllm"` |
+| `invalid_request_error: Invalid role` | Message role is not valid | Use `"system"`, `"user"`, or `"assistant"` |
+| `invalid_request_error: Request too large` | Total request exceeds token limit | Reduce input length or `max_tokens` |
+
+**Quick check:**
+
+```json
+{
+  "model": "auto",
+  "messages": [
+    { "role": "user", "content": "Hello!" }
+  ]
+}
+```
+
+<Info>
+  Use a JSON validator like [jsonlint.com](https://jsonlint.com) to catch syntax errors before sending.
+</Info>
+
+## 401 — Unauthorized
+
+Authentication failed. The server doesn't recognize your API key.
+
+| Code | Cause | Fix |
+|------|-------|-----|
+| `invalid_api_key` | Key is wrong or malformed | Check your key in the [dashboard](https://llm.kiwi/dashboard) |
+| `missing_api_key` | No Authorization header | Add `Authorization: Bearer sk_kiwi_...` |
+| `expired_api_key` | Key has been revoked | Create a new key |
+
+**Common mistakes:**
+
+```
+Wrong:  Authorization: sk_kiwi_abc123
+Wrong:  Authorization: Bearer skkiwi_abc123
+Correct: Authorization: Bearer sk_kiwi_abc123
+```
+
+## 403 — Forbidden
+
+Your key lacks permission for this operation.
+
+| Cause | Fix |
+|-------|-----|
+| Key was restricted or disabled | Create a new key in the [dashboard](https://llm.kiwi/dashboard) |
+
+## 429 — Rate Limited
+
+You're sending requests too fast.
+
+| Cause | Fix |
+|-------|-----|
+| Too many requests in a short window | Wait a few seconds and retry |
+| Too many concurrent requests | Add a concurrency limit in your code |
+
+**How to handle 429 in code:**
+
+```python
+import time
+from openai import RateLimitError
+
+def make_request(client, messages, max_retries=5):
+    for attempt in range(max_retries):
+        try:
+            return client.chat.completions.create(
+                model="auto",
+                messages=messages,
+            )
+        except RateLimitError:
+            if attempt == max_retries - 1:
+                raise
+            wait = 2 ** attempt  # 1, 2, 4, 8, 16 seconds
+            print(f"Rate limited, retrying in {wait}s...")
+            time.sleep(wait)
+```
+
+## 500 — Server Error
+
+Something went wrong on our end.
+
+| Cause | Fix |
+|-------|-----|
+| Temporary issue | Retry after a few seconds |
+| Maintenance or outage | Check [@LLMkiwi](https://x.com/LLMkiwi) for status |
+
+**What to do:**
+1. Wait 5-10 seconds and retry
+2. If persistent, email [support@llm.kiwi](mailto:support@llm.kiwi)
+
+## Connection errors
+
+These happen on your side before the request reaches our server.
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `ECONNREFUSED` | Wrong URL | Check your base URL is `https://api.llm.kiwi/v1` (not `http`) |
+| `ETIMEDOUT` | Request took too long | Set a longer timeout or try again |
+| `ENOTFOUND` | DNS resolution failed | Check your internet connection |
+
+## Debugging checklist
+
+When something goes wrong, check these in order:
+
+1. **Is your key correct?** — Run the models endpoint to verify
+   ```bash
+   curl "https://api.llm.kiwi/v1/models" -H "Authorization: Bearer sk_kiwi_..."
+   ```
+   If this works, your key is valid.
+
+2. **Is your JSON valid?** — Use a linter to check
+3. **Is your base URL correct?** — Must be `https://api.llm.kiwi/v1`
+4. **Are you following the format?** — Check against the [API Reference](/api-reference)
+
+## Still stuck?
+
+<CardGroup>
+  <Card title="Troubleshooting guide" icon="wrench" href="/troubleshooting">
+    Step-by-step solutions for common problems.
+  </Card>
+  <Card title="Contact support" icon="envelope" href="mailto:support@llm.kiwi">
+    Email us with your request, response, and what you expected.
+  </Card>
+</CardGroup>

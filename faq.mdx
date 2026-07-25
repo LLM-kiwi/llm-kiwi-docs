@@ -1,0 +1,129 @@
+---
+title: "FAQ"
+description: "Frequently asked questions about LLM.kiwi"
+---
+
+## General
+
+### Is LLM.kiwi really free?
+
+Yes. No credit card, no trial period. You can create API keys and make requests immediately. If we introduce paid plans in the future, there will always be a free tier.
+
+### Do I need to install anything?
+
+Not for cURL — it works from any terminal. For Python or JavaScript, you'll need to install the OpenAI SDK:
+
+```bash
+pip install openai
+```
+
+```bash
+npm install openai
+```
+
+### Do I need an AI background?
+
+Not at all. If you can send an HTTP request, you can use LLM.kiwi. The [Concepts](/concepts) page explains everything from scratch.
+
+### What's the catch?
+
+No catch. LLM.kiwi is a free service supported by infrastructure partnerships and future premium features. We believe access to AI should be free for learning, prototyping, and small-scale projects.
+
+## API keys
+
+### How do I get an API key?
+
+Sign in at [llm.kiwi/login](https://llm.kiwi/login) with Google or GitHub, then go to the [dashboard](https://llm.kiwi/dashboard) and click **Create Key**.
+
+### Why does my key start with `sk_kiwi_`?
+
+All LLM.kiwi keys use the `sk_kiwi_` prefix so you can easily identify them in your code and environment variables.
+
+### What if someone steals my key?
+
+Go to the [dashboard](https://llm.kiwi/dashboard) and revoke the key immediately. Then create a new one. Never share keys or commit them to public repos.
+
+### Can I have multiple keys?
+
+Yes. You can create, name, and manage as many keys as you need. Use separate keys for development, staging, and production.
+
+### How do I rotate my keys?
+
+Create a new key in the dashboard, update your application, then revoke the old key.
+
+## Models
+
+### What model does `auto` use?
+
+`auto` routes your request to the best available model at the time of the request. The specific model may change over time as we add new ones. Check the `model` field in the response to see which model handled your request.
+
+### Can I use a specific model?
+
+Currently, LLM.kiwi offers `auto` (recommended) and `hrllm` (Croatian-focused). Set `"model": "hrllm"` in your request body.
+
+### What is `hrllm`?
+
+A model optimized for Croatian language tasks. Use it for Croatian chatbots, translation, and content generation. For everything else, use `auto`.
+
+### How do I know which model was used?
+
+The response includes a `model` field that tells you which model handled your request:
+
+```json
+{
+  "model": "auto",
+  "choices": [...]
+}
+```
+
+## Technical
+
+### Why am I getting a 401 error?
+
+Your API key is missing or invalid. Check:
+- The `Authorization` header format: `Bearer sk_kiwi_...`
+- The key is copied correctly from the dashboard
+- The key hasn't been revoked
+
+### Why am I getting a 429 error?
+
+You've exceeded the rate limit. Wait a few seconds and retry. Implement exponential backoff in your code to handle this automatically.
+
+### Can I stream responses?
+
+Yes. Set `"stream": true` in your request body. See [Code Examples](/examples) for streaming implementations in Python and JavaScript.
+
+### What's the max tokens per request?
+
+This depends on the underlying model. If you hit token limits, reduce your input length or set `max_tokens` to a lower value. Check the `finish_reason` field — if it's `"length"`, you hit the token cap.
+
+### Is there a web interface to test the API?
+
+Yes! Visit [chat.llm.kiwi](https://chat.llm.kiwi) for a web-based chat interface powered by the same API.
+
+### Why use `https://api.llm.kiwi/v1` instead of `https://api.openai.com/v1`?
+
+LLM.kiwi is OpenAI-compatible, so you can use any OpenAI SDK. Just change the base URL to `https://api.llm.kiwi/v1`. Your existing OpenAI code will work with minimal changes.
+
+### What is the uptime / SLA?
+
+LLM.kiwi runs on Cloudflare's infrastructure for high availability. While we don't offer a formal SLA on the free tier, we strive for maximum uptime. Check [@LLMkiwi](https://x.com/LLMkiwi) for status updates.
+
+### Can I use LLM.kiwi in production?
+
+The free tier is great for learning, prototyping, and personal projects. For production applications at scale, check the [pricing page](https://llm.kiwi/pricing) for plans with higher rate limits and priority access.
+
+### How do I report a bug or request a feature?
+
+Open an issue on our [GitHub](https://github.com/LLM-kiwi) or email [support@llm.kiwi](mailto:support@llm.kiwi).
+
+## Still have questions?
+
+<CardGroup>
+  <Card title="Email support" icon="envelope" href="mailto:support@llm.kiwi">
+    support@llm.kiwi — we respond within 24 hours.
+  </Card>
+  <Card title="Troubleshooting" icon="wrench" href="/troubleshooting">
+    Common errors and how to fix them.
+  </Card>
+</CardGroup>

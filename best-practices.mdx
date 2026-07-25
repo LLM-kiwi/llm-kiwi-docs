@@ -1,0 +1,228 @@
+---
+title: "Best Practices"
+description: "Tips and tricks for getting the most out of the LLM.kiwi API"
+---
+
+This page covers patterns and practices that will help you build better, more reliable applications with LLM.kiwi.
+
+## Prompt engineering
+
+The way you write your prompts has a huge impact on response quality. Small changes can make a big difference.
+
+### Be specific
+
+Instead of:
+
+<Note>
+  Too vague
+</Note>
+
+```json
+{"role": "user", "content": "Tell me about cats."}
+```
+
+Do this:
+
+<Tip>
+  Specific and clear
+</Tip>
+
+```json
+{"role": "user", "content": "List 5 interesting facts about domestic cats, each with a one-sentence explanation."}
+```
+
+### Use system messages effectively
+
+System messages set the AI's behavior and tone. They run at the start of every request and cost minimal tokens.
+
+<AccordionGroup>
+  <Accordion title="Role-playing">
+    ```json
+    {"role": "system", "content": "You are a senior software engineer. Explain concepts clearly with code examples."}
+    ```
+  </Accordion>
+  <Accordion title="Format control">
+    ```json
+    {"role": "system", "content": "Respond only with valid JSON. No markdown, no explanations."}
+    ```
+  </Accordion>
+  <Accordion title="Tone setting">
+    ```json
+    {"role": "system", "content": "You are a friendly teacher explaining to a beginner. Use simple words and analogies."}
+    ```
+  </Accordion>
+  <Accordion title="Constraint setting">
+    ```json
+    {"role": "system", "content": "Answer in 3 sentences or less. Be concise."}
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Give examples (few-shot prompting)
+
+Show the AI what you want by providing examples:
+
+```json
+{
+  "messages": [
+    {"role": "system", "content": "Classify the sentiment as positive, negative, or neutral."},
+    {"role": "user", "content": "This product is amazing!"},
+    {"role": "assistant", "content": "positive"},
+    {"role": "user", "content": "I hate waiting in line."},
+    {"role": "assistant", "content": "negative"},
+    {"role": "user", "content": "The weather today is cloudy."}
+  ]
+}
+```
+
+## Error handling
+
+Always handle errors gracefully in production code. Here's a robust pattern:
+
+```python
+import openai
+from openai import RateLimitError, APIError, APIConnectionError
+import time
+
+client = openai.OpenAI(
+    base_url="https://api.llm.kiwi/v1",
+    api_key="sk_kiwi_...",
+)
+
+def safe_chat_completion(messages, max_retries=3):
+    for attempt in range(max_retries):
+        try:
+            return client.chat.completions.create(
+                model="auto",
+                messages=messages,
+                timeout=30,
+            )
+        except RateLimitError:
+            if attempt < max_retries - 1:
+                wait = 2 ** attempt
+                print(f"Rate limited. Waiting {wait}s...")
+                time.sleep(wait)
+            else:
+                raise
+        except APIConnectionError:
+            if attempt < max_retries - 1:
+                time.sleep(1)
+            else:
+                raise
+        except APIError as e:
+            print(f"API error: {e}")
+            raise
+
+response = safe_chat_completion([
+    {"role": "user", "content": "Hello!"}
+])
+print(response.choices[0].message.content)
+```
+
+## Token optimization
+
+Tokens are the currency of LLM APIs. Here's how to use them wisely:
+
+<Tip>
+  A good rule of thumb: 1 token ≈ 0.75 words in English. A 10-word sentence is roughly 13 tokens.
+</Tip>
+
+**Reduce prompt tokens:**
+- Keep system prompts short and focused
+- Remove unnecessary conversation history
+- Use shorter variable names in code snippets you send
+
+**Control response length:**
+
+```python
+response = client.chat.completions.create(
+    model="auto",
+    messages=[{"role": "user", "content": "Explain quantum computing"}],
+    max_tokens=100,
+)
+```
+
+**Check your usage:**
+
+```python
+usage = response.usage
+print(f"Input: {usage.prompt_tokens} tokens")
+print(f"Output: {usage.completion_tokens} tokens")
+print(f"Total: {usage.total_tokens} tokens")
+```
+
+## Managing conversation history
+
+For chatbots and multi-turn conversations, history grows fast. Implement a sliding window:
+
+```python
+MAX_HISTORY_TOKENS = 2000
+
+def add_to_history(history, new_message, response):
+    history.append(new_message)
+    history.append(response)
+    total = sum(len(m["content"]) for m in history) // 4
+    while total > MAX_HISTORY_TOKENS and len(history) > 2:
+        removed = history.pop(1)
+        total -= len(removed["content"]) // 4
+    return history
+```
+
+## Security
+
+<Warning>
+  Never expose your API key in client-side code, browser apps, or public GitHub repos. Anyone with your key can use your account.
+</Warning>
+
+**Do:**
+- Store keys in environment variables
+- Use `.env` files locally (and add them to `.gitignore`)
+- Rotate keys periodically from the [dashboard](https://llm.kiwi/dashboard)
+
+**Don't:**
+- Hardcode keys in source code
+- Commit keys to git
+- Share keys in logs or error messages
+
+### Environment variable pattern
+
+```python
+import os
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://api.llm.kiwi/v1",
+    api_key=os.getenv("LLMKIWI_API_KEY"),
+)
+```
+
+```bash
+# .env file (never commit this!)
+LLMKIWI_API_KEY=sk_kiwi_abc123xyz
+```
+
+## Production checklist
+
+Before deploying your app, run through this checklist:
+
+- [ ] API key stored in environment variables, not code
+- [ ] Error handling implemented for all common status codes
+- [ ] `max_tokens` set to prevent unexpectedly long responses
+- [ ] Retry logic with exponential backoff for rate limits
+- [ ] Conversation history capped to stay within context window
+- [ ] Timeout set on API calls (e.g., 30 seconds)
+- [ ] API key is revocable from dashboard (test this)
+
+## Next steps
+
+<CardGroup>
+  <Card title="Error Reference" icon="triangle-exclamation" href="/errors">
+    Complete list of error codes, causes, and fixes.
+  </Card>
+  <Card title="FAQ" icon="question-circle" href="/faq">
+    Frequently asked questions from the community.
+  </Card>
+  <Card title="Code Examples" icon="code" href="/examples">
+    Working examples in Python, JavaScript, and cURL.
+  </Card>
+</CardGroup>

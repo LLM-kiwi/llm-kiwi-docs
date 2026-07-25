@@ -3,7 +3,9 @@ title: "Quickstart"
 description: "Get your first API response in under 2 minutes"
 ---
 
-This guide takes you from zero to a working API call. If you've never used an API before, read [Concepts](/concepts) first — or just follow along and learn as you go.
+This guide takes you from zero to a working API call in under 2 minutes. If you've never used an API before, don't worry — just follow along.
+
+<Info>Brand new to programming? Start with the cURL example — it works from any terminal with zero setup.</Info>
 
 ## What you need
 
@@ -11,7 +13,7 @@ This guide takes you from zero to a working API call. If you've never used an AP
 - An internet connection
 - A terminal or code editor
 
-That's it. No credit card. No Docker. No special software. No installs required (unless you want the Python/JS SDK).
+That's it. No credit card. No Docker. No special software.
 
 ## Step 1: Get your API key
 
@@ -144,6 +146,8 @@ Here's what just happened under the hood:
 5. **The response** contains the AI's reply in `choices[0].message.content`
 
 That's the entire flow. Every API call works the same way — you just change the messages.
+
+<Tip>If you got a `401` error, check that your API key starts with `sk_kiwi_` and the header says `Bearer sk_kiwi_...` (with "Bearer " before the key). If you got a `400` error, check that your JSON is valid — missing commas are a common beginner mistake.</Tip>
 
 ## Step 4: Try something different
 

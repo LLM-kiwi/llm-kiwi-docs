@@ -1,8 +1,8 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "palm",
-  "name": "LLM.kiwifree API docs and how to use",
-  "description": "Free AI API — OpenAI-compatible chat completions. No credit card required.",
+  "name": "LLM.kiwi Docs",
+  "description": "Free AI API — OpenAI-compatible chat completions. No credit card required. Get started in minutes.",
   "colors": {
     "primary": "#16A34A",
     "light": "#07C983",
@@ -23,7 +23,8 @@
   },
   "navigation": [
     {
-      "group": "Get Started",
+      "group": "Getting Started",
+      "icon": "rocket",
       "pages": [
         "index",
         "quickstart",
@@ -32,8 +33,10 @@
       ]
     },
     {
-      "group": "Guides",
+      "group": "Guides & Examples",
+      "icon": "book-open",
       "pages": [
+        "best-practices",
         "use-cases",
         "examples",
         "sdks"
@@ -41,15 +44,19 @@
     },
     {
       "group": "Reference",
+      "icon": "code",
       "pages": [
         "models",
         "limits",
-        "api-reference"
+        "api-reference",
+        "errors"
       ]
     },
     {
-      "group": "Help",
+      "group": "Support",
+      "icon": "circle-question",
       "pages": [
+        "faq",
         "troubleshooting"
       ]
     }

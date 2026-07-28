@@ -5,6 +5,67 @@ description: "Production tips for LLM.kiwi: secure API key storage, environment 
 icon: "shield-halved"
 ---
 
+<style>
+  {`
+    .chat-assistant-floating-input,
+    chat-assistant-floating-input {
+    display: none !important;
+    }
+
+    #assistant-entry,
+    #assistant-entry-mobile {
+    position: fixed !important;
+    right: max(1rem, env(safe-area-inset-right)) !important;
+    bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+    z-index: 60 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 3rem !important;
+    min-width: 3rem !important;
+    height: 3rem !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    color: #fff !important;
+    background: #16a34a !important;
+    border: 1px solid rgb(255 255 255 / 20%) !important;
+    border-radius: 9999px !important;
+    box-shadow: 0 10px 25px rgb(15 23 42 / 18%), 0 2px 8px rgb(15 23 42 / 12%) !important;
+    }
+
+    #assistant-entry:hover,
+    #assistant-entry-mobile:hover {
+    background: #15803d !important;
+    }
+
+    #assistant-entry:focus-visible,
+    #assistant-entry-mobile:focus-visible {
+    outline: 3px solid rgb(22 163 74 / 35%) !important;
+    outline-offset: 3px !important;
+    }
+
+    #assistant-entry svg,
+    #assistant-entry-mobile svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    color: currentcolor !important;
+    }
+
+    @media (min-width: 768px) {
+    #assistant-entry-mobile { display: none !important; }
+    }
+
+    @media (max-width: 767px) {
+    #assistant-entry { display: none !important; }
+    }
+
+    @media print {
+    #assistant-entry,
+    #assistant-entry-mobile { display: none !important; }
+    }
+    `}
+</style>
+
 Use this checklist after the quickstart and before other people depend on your integration.
 
 ## Keep API keys private
@@ -136,11 +197,11 @@ Do not log full API keys. Avoid logging complete prompts and responses unless th
 - [ ] Monitoring does not expose private content
 
 <CardGroup cols={2}>
-  <Card title="Build a practical feature" icon="wand-magic-sparkles" href="/use-cases">
+  <Card title="Build a practical feature" href="/use-cases">
     Apply these rules to common use cases.
   </Card>
 
-  <Card title="Handle every error" icon="triangle-exclamation" href="/errors">
+  <Card title="Handle every error" href="/errors">
     Add predictable error behavior.
   </Card>
 </CardGroup>

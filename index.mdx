@@ -1,142 +1,120 @@
 ---
-title: "LLM.kiwi: free OpenAI-compatible AI API documentation"
-description: "Official LLM.kiwi docs: a free, OpenAI-compatible chat completions API at api.llm.kiwi with quickstarts, code examples, SDK guides, and reference."
+title: "LLM.kiwi documentation"
+sidebarTitle: "Overview"
+description: "Start from zero and build with the free OpenAI-compatible LLM.kiwi API."
+icon: "house"
 ---
 
-<Note>
-  LLM.kiwi is **100% free**. No credit card, no trial. Sign in with GitHub or Google and start making API calls in seconds.
-</Note>
+# Build with LLM.kiwi
 
-## What is LLM.kiwi?
+Add AI chat and text generation to your application through a free OpenAI-compatible API. No credit card, local model, or GPU is required.
 
-LLM.kiwi is a **free API** that gives you access to AI language models. If you've ever used ChatGPT, this is the same technology — but you control it from your own code.
-
-**The short version:**
-1. Get a free API key at [llm.kiwi](https://llm.kiwi/login)
-2. Send a message to `https://api.llm.kiwi/v1/chat/completions`
-3. Get an AI response back
-
-That's it. No servers to run. No models to download. No credit card.
-
-## Try it now
-
-Paste this into your terminal (replace `YOUR_API_KEY` with your real key):
-
-```bash
-curl -X POST "https://api.llm.kiwi/v1/chat/completions" \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "auto",
-    "messages": [{"role": "user", "content": "Say hello!"}]
-  }'
-```
-
-You should get a JSON response with the AI's reply. If you see an error, check [Troubleshooting](/troubleshooting).
-
-## Why developers love it
-
-<CardGroup>
-  <Card title="Free forever" icon="heart" href="https://llm.kiwi/login">
-    No credit card, no trial. Sign in and get an API key immediately.
+<CardGroup cols={3}>
+  <Card title="Free access" icon="heart">
+    Create an account and begin without a credit card.
   </Card>
-  <Card title="OpenAI-compatible" icon="plug" href="/quickstart">
-    Works with the OpenAI SDKs. Just change the base URL — no other code changes.
+
+  <Card title="OpenAI-compatible" icon="plug">
+    Use familiar chat completions clients with a custom base URL.
   </Card>
-  <Card title="Smart routing" icon="route" href="/models">
-    Use `auto` and the best available model is selected for you.
-  </Card>
-  <Card title="Croatian support" icon="language" href="/models#hrllm">
-    Dedicated `hrllm` model for Croatian-language generation.
-  </Card>
-  <Card title="Beginner-friendly" icon="school" href="/concepts">
-    Concepts explained from scratch. No AI experience required.
-  </Card>
-  <Card title="Dashboard" icon="gauge-high" href="https://llm.kiwi/dashboard">
-    Create, label, and revoke API keys from a clean dashboard.
-  </Card>
-  <Card title="Copy-paste examples" icon="code" href="/examples">
-    Working code in Python, JavaScript, and cURL.
-  </Card>
-  <Card title="Global network" icon="globe">
-    Powered by Cloudflare for fast responses worldwide.
+
+  <Card title="Croatian support" icon="language">
+    Select `hrllm` for Croatian-focused generation.
   </Card>
 </CardGroup>
 
-## I'm brand new to APIs
-
-No problem. Here's the 30-second explanation:
-
-An **API** is just a way for your code to talk to a service over the internet. You send a request (like a text message), and you get a response back.
-
-With LLM.kiwi:
-- **You write code** that sends a message like `"Tell me a joke"`
-- **Our API** receives it, runs it through an AI model, and sends back the joke
-- **You display** the response in your app
-
-No AI expertise needed. If you can send an HTTP request, you can use LLM.kiwi.
-
-<Card title="New to APIs? Read the Concepts guide" icon="book-open" href="/concepts">
-  We explain every term from scratch — base URLs, authentication, messages, and more.
-</Card>
-
-## Pick your path
+## Start here
 
 <Steps>
-  <Step title="Get your API key" icon="key">
-    Sign in at [llm.kiwi](https://llm.kiwi/login) and grab a key from the [dashboard](https://llm.kiwi/dashboard). Takes 10 seconds.
+  <Step title="Create a free API key">
+    Sign in at [llm.kiwi/login](https://llm.kiwi/login), open the [dashboard](https://llm.kiwi/dashboard), and create a key beginning with `sk_kiwi_`.
   </Step>
-  <Step title="Make your first request" icon="terminal">
-    Follow the [Quickstart](/quickstart) for a step-by-step guide with code in Python, JavaScript, and cURL.
+  <Step title="Make one test request">
+    Follow the [Quickstart](/quickstart) using cURL, Python, or Node.js. It includes installation steps and expected output.
   </Step>
-  <Step title="Understand the concepts" icon="lightbulb">
-    Read [Concepts](/concepts) to learn how messages, roles, and models work.
+  <Step title="Move the key into an environment variable">
+    Do not leave a private key inside source code. The quickstart shows the commands for macOS, Linux, and Windows PowerShell.
   </Step>
-  <Step title="Build something real" icon="code">
-    Check out [Use Cases](/use-cases) for copy-paste projects: chatbots, translators, content generators, and more.
+  <Step title="Build a small feature">
+    Choose a pattern from [Use cases](/use-cases), then apply the security and reliability checklist in [Best practices](/best-practices).
   </Step>
 </Steps>
 
-## Quick links
+<Card title="New to APIs and AI?" icon="graduation-cap" href="/concepts">
+  Read Core concepts for plain-English explanations of endpoints, headers, JSON, messages, models, tokens, responses, and errors.
+</Card>
 
-<CardGroup>
-  <Card title="Quickstart" icon="rocket" href="/quickstart">
-    Zero to first API call in under 2 minutes.
+## Your first request
+
+```bash
+curl "https://api.llm.kiwi/v1/chat/completions" \
+  -H "Authorization: Bearer sk_kiwi_..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "auto",
+    "messages": [
+      {"role": "user", "content": "Reply with: Hello from LLM.kiwi!"}
+    ]
+  }'
+```
+
+A successful response contains the answer at `choices[0].message.content`.
+
+<Warning>
+  The key shown above is a placeholder. Use your real key only in a local test, then store it in an environment variable. Never expose it in frontend code or a public repository.
+</Warning>
+
+## Choose what you need
+
+<CardGroup cols={2}>
+  <Card title="I want my first working call" icon="rocket" href="/quickstart">
+    Complete setup from account creation to expected output.
   </Card>
-  <Card title="Concepts" icon="lightbulb" href="/concepts">
-    Understand the building blocks from scratch.
+
+  <Card title="I need working code" icon="code" href="/examples">
+    Copy server-side Python, Node.js, cURL, and streaming examples.
   </Card>
-  <Card title="Best Practices" icon="star" href="/best-practices">
-    Tips for error handling, prompt engineering, and security.
+
+  <Card title="I need endpoint details" icon="brackets-curly" href="/api-reference">
+    Review request fields, response fields, authentication, and statuses.
   </Card>
-  <Card title="Use Cases" icon="wand-magic-sparkles" href="/use-cases">
-    Real projects you can build today.
+
+  <Card title="Something is failing" icon="wrench" href="/troubleshooting">
+    Diagnose keys, JSON, URLs, SDK settings, limits, and timeouts.
   </Card>
-  <Card title="Code Examples" icon="code" href="/examples">
-    Copy-paste snippets in every language.
+</CardGroup>
+
+## Essential values
+
+| Setting | Value |
+| --- | --- |
+| Base URL | `https://api.llm.kiwi/v1` |
+| Chat endpoint | `POST /v1/chat/completions` |
+| Models endpoint | `GET /v1/models` |
+| Authentication | `Authorization: Bearer YOUR_API_KEY` |
+| Recommended starting model | `auto` |
+| Croatian-focused model | `hrllm` |
+
+## Before real users depend on it
+
+- Keep API calls and keys on your backend.
+- Set a request timeout.
+- Retry only temporary failures with bounded backoff.
+- Limit input size and conversation history.
+- Validate generated output before using it.
+- Avoid sending secrets or unnecessary personal data.
+- Provide a useful fallback when the API is unavailable.
+
+<CardGroup cols={3}>
+  <Card title="Best practices" icon="shield-halved" href="/best-practices">
+    Security and production-readiness checklist.
   </Card>
-  <Card title="SDKs & Libraries" icon="cubes" href="/sdks">
-    Official and community libraries.
+
+  <Card title="Limits" icon="gauge" href="/limits">
+    Rate limits, token usage, and efficient requests.
   </Card>
-  <Card title="Models" icon="brain" href="/models">
-    Choose between `auto` and `hrllm`.
-  </Card>
-  <Card title="Limits & Pricing" icon="tag" href="/limits">
-    Free plan details and rate limits.
-  </Card>
-  <Card title="API Reference" icon="file-code" href="/api-reference">
-    Full endpoint docs and error codes.
-  </Card>
-  <Card title="Glossary" icon="book" href="/glossary">
-    Every term explained simply.
-  </Card>
-  <Card title="FAQ" icon="question-circle" href="/faq">
-    Answers to common questions.
-  </Card>
-  <Card title="Error Reference" icon="triangle-exclamation" href="/errors">
-    Every error code explained with fixes.
-  </Card>
-  <Card title="Troubleshooting" icon="wrench" href="/troubleshooting">
-    Something not working? Start here.
+
+  <Card title="FAQ" icon="circle-question" href="/faq">
+    Short answers to common integration questions.
   </Card>
 </CardGroup>

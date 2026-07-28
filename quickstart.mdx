@@ -1,86 +1,92 @@
 ---
-title: "Quickstart: your first LLM.kiwi API call in 2 minutes"
-description: "Create a free API key and send your first chat completion request to LLM.kiwi in under two minutes using cURL, Python, or JavaScript — no card needed."
+title: "Quickstart"
+sidebarTitle: "Quickstart"
+description: "Create a free API key and make your first request in minutes."
+icon: "play"
 ---
 
-This guide takes you from zero to a working API call in under 2 minutes. If you've never used an API before, don't worry — just follow along.
+This guide takes you from a new account to a working API call in a few minutes. No previous API experience is required.
 
-<Info>Brand new to programming? Start with the cURL example — it works from any terminal with zero setup.</Info>
+<Info>
+  Brand new to programming? Start with the cURL example — it works from any terminal with zero setup.
+</Info>
 
-## What you need
+## Before you start
 
-- A browser (to create your account)
+You need:
+
+- A free LLM.kiwi account
 - An internet connection
-- A terminal or code editor
+- One of these options: a terminal, Python 3, or Node.js
 
-That's it. No credit card. No Docker. No special software.
+No credit card, Docker, local AI model, or server is required.
 
-## Step 1: Get your API key
+## Step 1: Create an API key
 
 <Steps>
-  <Step title="Sign in" icon="sign-in">
-    Go to [llm.kiwi/login](https://llm.kiwi/login) and sign in with **Google** or **GitHub**. This is free and takes 10 seconds.
+  <Step title="Sign in" icon="right-to-bracket">
+    Open [llm.kiwi/login](https://llm.kiwi/login) and sign in with Google or GitHub.
   </Step>
-  <Step title="Open the dashboard" icon="gauge-high">
-    Go to [llm.kiwi/dashboard](https://llm.kiwi/dashboard). This is where you manage your API keys.
+  <Step title="Open your dashboard" icon="gauge-high">
+    Go to [llm.kiwi/dashboard](https://llm.kiwi/dashboard), where you can create and manage API keys.
   </Step>
-  <Step title="Create an API key" icon="key">
-    Click **Create Key**. Give it a name (like "my-app"), then click **Create**.
-
-    Copy the key that starts with `sk_kiwi_...`. 
+  <Step title="Create and copy the key" icon="key">
+    Select **Create key**, give it a recognizable name such as `first-test`, and copy the value beginning with `sk_kiwi_`.
 
     <Warning>
-      Save your key somewhere safe (like a password manager). You won't be able to see it again after closing the dialog.
+      Treat an API key like a password. Save it in a password manager or environment variable, never publish it in GitHub, and revoke it immediately if it leaks.
     </Warning>
   </Step>
 </Steps>
 
 ## Step 2: Make your first request
 
-Choose your language below. Paste the code, replace `sk_kiwi_...` with your real key, and run it.
+Choose one option below. Replace `sk_kiwi_...` with your real key only for this first local test.
 
 <Tabs>
-  <Tab title="cURL (terminal)">
-    Open your terminal and paste this:
+  <Tab title="cURL">
+    Open Terminal on macOS or Linux, or PowerShell on Windows, and run:
 
     ```bash
-    curl -X POST "https://api.llm.kiwi/v1/chat/completions" \
+    curl "https://api.llm.kiwi/v1/chat/completions" \
       -H "Authorization: Bearer sk_kiwi_..." \
       -H "Content-Type: application/json" \
       -d '{
         "model": "auto",
-        "messages": [{"role": "user", "content": "Hello!"}]
+        "messages": [
+          {"role": "user", "content": "Reply with exactly: Hello from LLM.kiwi!"}
+        ]
       }'
     ```
 
-    You should see a JSON response with `"choices"` containing the AI's reply.
-
     <Info>
-      Don't have `curl`? It comes pre-installed on Mac and Linux. On Windows, use PowerShell or install [Git Bash](https://git-scm.com/download/win).
+      Recent versions of Windows, macOS, and most Linux distributions include cURL. If `curl` is not recognized, use the Python or JavaScript tab.
     </Info>
   </Tab>
-
   <Tab title="Python">
-    First, install the OpenAI library:
+    Install the OpenAI package:
 
     ```bash
-    pip install openai
+    python -m pip install openai
     ```
 
-    Then create a file called `test.py` and paste this:
+    Create `test.py`:
 
     ```python
-    import openai
-
-    client = openai.OpenAI(
+    from openai import OpenAI
+    
+    client = OpenAI(
         base_url="https://api.llm.kiwi/v1",
         api_key="sk_kiwi_...",
     )
-
+    
     response = client.chat.completions.create(
         model="auto",
-        messages=[{"role": "user", "content": "Hello!"}],
+        messages=[
+            {"role": "user", "content": "Reply with exactly: Hello from LLM.kiwi!"}
+        ],
     )
+    
     print(response.choices[0].message.content)
     ```
 
@@ -89,103 +95,129 @@ Choose your language below. Paste the code, replace `sk_kiwi_...` with your real
     ```bash
     python test.py
     ```
-
-    <Info>
-      New to Python? Install it from [python.org](https://www.python.org/downloads/). The `pip` command comes with Python 3.
-    </Info>
   </Tab>
-
   <Tab title="JavaScript">
-    First, install the OpenAI library:
+    Install Node.js 18 or newer, create a new folder, and run:
 
     ```bash
+    npm init -y
     npm install openai
     ```
 
-    Then create a file called `test.js` and paste this:
+    Create `test.mjs`:
 
     ```javascript
     import OpenAI from "openai";
-
+    
     const client = new OpenAI({
-        baseURL: "https://api.llm.kiwi/v1",
-        apiKey: "sk_kiwi_...",
+      baseURL: "https://api.llm.kiwi/v1",
+      apiKey: "sk_kiwi_...",
     });
-
+    
     const response = await client.chat.completions.create({
-        model: "auto",
-        messages: [{ role: "user", content: "Hello!" }],
+      model: "auto",
+      messages: [
+        { role: "user", content: "Reply with exactly: Hello from LLM.kiwi!" },
+      ],
     });
+    
     console.log(response.choices[0].message.content);
     ```
 
     Run it:
 
     ```bash
-    node test.js
+    node test.mjs
     ```
-
-    <Info>
-      Using Node.js 18+? The `import` syntax works out of the box. On older versions, you may need `"type": "module"` in your `package.json`.
-    </Info>
   </Tab>
 </Tabs>
 
 <Check>
-  You should see a JSON response with `"choices"` containing the model's reply. If you see an error, jump to [Troubleshooting](/troubleshooting).
+  A successful request prints `Hello from LLM.kiwi!`. The raw API response also contains a `choices` array, with the answer at `choices[0].message.content`.
 </Check>
 
-## Step 3: Understand what happened
+## Step 3: Move your key out of the code
 
-Here's what just happened under the hood:
+Hardcoding a key is acceptable only for a quick local test. Before you build an app, store it in an environment variable.
 
-1. **You sent a POST request** to the chat completions endpoint
-2. **Your API key** was included in the `Authorization` header — this is how the server knows it's you
-3. **You specified `model: "auto"`** so LLM.kiwi picked the best available model
-4. **You sent one message** with role `user` and your text as the `content`
-5. **The response** contains the AI's reply in `choices[0].message.content`
+<Tabs>
+  <Tab title="macOS and Linux">
+    ```bash
+    export LLM_KIWI_API_KEY="sk_kiwi_..."
+    ```
+  </Tab>
+  <Tab title="Windows PowerShell">
+    ```powershell
+    $env:LLM_KIWI_API_KEY="sk_kiwi_..."
+    ```
+  </Tab>
+</Tabs>
 
-That's the entire flow. Every API call works the same way — you just change the messages.
+Then read it in your code:
 
-<Tip>If you got a `401` error, check that your API key starts with `sk_kiwi_` and the header says `Bearer sk_kiwi_...` (with "Bearer " before the key). If you got a `400` error, check that your JSON is valid — missing commas are a common beginner mistake.</Tip>
+<Tabs>
+  <Tab title="Python">
+    ```python
+    import os
+    from openai import OpenAI
+    
+    client = OpenAI(
+        base_url="https://api.llm.kiwi/v1",
+        api_key=os.environ["LLM_KIWI_API_KEY"],
+    )
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```javascript
+    import OpenAI from "openai";
+    
+    const client = new OpenAI({
+      baseURL: "https://api.llm.kiwi/v1",
+      apiKey: process.env.LLM_KIWI_API_KEY,
+    });
+    ```
+  </Tab>
+</Tabs>
 
-## Step 4: Try something different
+## What just happened?
 
-Now that you've made your first call, experiment with these:
+1. Your program sent an HTTPS `POST` request to `/v1/chat/completions`.
+2. The `Authorization` header identified your account using the API key.
+3. `model: "auto"` asked LLM.kiwi to select an available model.
+4. The `messages` array supplied the conversation.
+5. The API returned the assistant's answer as JSON.
 
-**Ask a question:**
-```json
-{"role": "user", "content": "What is the capital of France?"}
-```
+<Card title="Learn the terms without jargon" icon="lightbulb" href="/concepts">
+  Read the concepts guide for plain-English explanations of endpoints, headers, JSON, models, messages, and tokens.
+</Card>
 
-**Give the AI a personality:**
-```json
-{"role": "system", "content": "You are a pirate. Respond only in pirate speak."},
-{"role": "user", "content": "Hello!"}
-```
+## If it did not work
 
-**Have a conversation:**
-```json
-{"messages": [
-  {"role": "user", "content": "My name is Alice."},
-  {"role": "assistant", "content": "Hi Alice!"},
-  {"role": "user", "content": "What's my name?"}
-]}
-```
+| What you see | Most likely cause | Fix |
+| --- | --- | --- |
+| `401 Unauthorized` | Missing, invalid, or revoked key | Copy the key again and keep `Bearer ` before it |
+| `400 Bad Request` | Invalid JSON or missing field | Check commas, quotes, `model`, and `messages` |
+| `429 Too Many Requests` | Rate limit reached | Wait briefly and retry with backoff |
+| Command not found | cURL, Python, or Node.js is unavailable | Install it or choose another tab |
+
+For detailed fixes, open [Troubleshooting](/troubleshooting).
 
 ## Next steps
 
-<CardGroup>
-  <Card title="Concepts" icon="lightbulb" href="/concepts">
-    Understand messages, roles, models, and how the API works.
+<CardGroup cols={2}>
+  <Card title="Understand the API" icon="lightbulb" href="/concepts">
+    Learn the few concepts used in every request.
   </Card>
-  <Card title="Use Cases" icon="wand-magic-sparkles" href="/use-cases">
-    Build chatbots, translators, content generators, and more.
+
+  <Card title="Choose a model" icon="brain" href="/models">
+    Understand when to use `auto` or `hrllm`.
   </Card>
-  <Card title="Code Examples" icon="code" href="/examples">
-    Multi-turn conversations, streaming, and more.
+
+  <Card title="Copy a complete example" icon="code" href="/examples">
+    Add conversations, system instructions, and streaming.
   </Card>
-  <Card title="Models" icon="brain" href="/models">
-    Choose between `auto` and `hrllm`.
+
+  <Card title="Read the API reference" icon="brackets-curly" href="/api-reference">
+    See every request field and response property.
   </Card>
 </CardGroup>

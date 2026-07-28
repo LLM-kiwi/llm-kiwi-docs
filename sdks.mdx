@@ -1,179 +1,119 @@
 ---
-title: "SDKs and client libraries for the LLM.kiwi API"
-description: "Use LLM.kiwi with the official OpenAI SDKs for Python and Node.js, plus community libraries for Go, Ruby, and more — just swap the base URL."
+title: "SDKs and libraries"
+sidebarTitle: "SDKs and libraries"
+description: "Connect with OpenAI-compatible Python and JavaScript clients or direct HTTP."
+icon: "cubes"
 ---
 
-LLM.kiwi is OpenAI-compatible, so any library that works with OpenAI works with us. Just change the base URL.
-
-## Official SDKs
-
-These are maintained by OpenAI and fully compatible with LLM.kiwi.
-
-<Tabs>
-  <Tab title="Python">
-    **Install:**
-
-    ```bash
-    pip install openai
-    ```
-
-    **Usage:**
-
-    ```python
-    import openai
-
-    client = openai.OpenAI(
-        base_url="https://api.llm.kiwi/v1",
-        api_key="sk_kiwi_...",
-    )
-
-    response = client.chat.completions.create(
-        model="auto",
-        messages=[{"role": "user", "content": "Hello!"}],
-    )
-    print(response.choices[0].message.content)
-    ```
-
-    **Docs:** [platform.openai.com/docs/sdks/python](https://platform.openai.com/docs/sdks/python)
-  </Tab>
-
-  <Tab title="JavaScript / TypeScript">
-    **Install:**
-
-    ```bash
-    npm install openai
-    ```
-
-    **Usage:**
-
-    ```javascript
-    import OpenAI from "openai";
-
-    const client = new OpenAI({
-        baseURL: "https://api.llm.kiwi/v1",
-        apiKey: "sk_kiwi_...",
-    });
-
-    const response = await client.chat.completions.create({
-        model: "auto",
-        messages: [{ role: "user", content: "Hello!" }],
-    });
-    console.log(response.choices[0].message.content);
-    ```
-
-    **Docs:** [platform.openai.com/docs/sdks/node](https://platform.openai.com/docs/sdks/node)
-  </Tab>
-
-  <Tab title="Go">
-    **Install:**
-
-    ```bash
-    go get github.com/sashabaranov/go-openai
-    ```
-
-    **Usage:**
-
-    ```go
-    package main
-
-    import (
-        "context"
-        "fmt"
-        openai "github.com/sashabaranov/go-openai"
-    )
-
-    func main() {
-        client := openai.NewClient(
-            "sk_kiwi_...",
-            "https://api.llm.kiwi/v1",
-        )
-
-        resp, err := client.CreateChatCompletion(
-            context.Background(),
-            openai.ChatCompletionRequest{
-                Model: "auto",
-                Messages: []openai.ChatCompletionMessage{
-                    {Role: openai.ChatMessageRoleUser, Content: "Hello!"},
-                },
-            },
-        )
-        if err != nil {
-            panic(err)
-        }
-        fmt.Println(resp.Choices[0].Message.Content)
-    }
-    ```
-
-    **Docs:** [github.com/sashabaranov/go-openai](https://github.com/sashabaranov/go-openai)
-  </Tab>
-</Tabs>
-
-## Using any HTTP client
-
-You don't need an SDK. Any tool that can make HTTP requests works.
-
-<Tabs>
-  <Tab title="curl">
-    ```bash
-    curl -X POST "https://api.llm.kiwi/v1/chat/completions" \
-      -H "Authorization: Bearer sk_kiwi_..." \
-      -H "Content-Type: application/json" \
-      -d '{
-        "model": "auto",
-        "messages": [{"role": "user", "content": "Hello!"}]
-      }'
-    ```
-  </Tab>
-
-  <Tab title="Python requests">
-    ```python
-    import requests
-
-    response = requests.post(
-        "https://api.llm.kiwi/v1/chat/completions",
-        headers={
-            "Authorization": "Bearer sk_kiwi_...",
-            "Content-Type": "application/json",
-        },
-        json={
-            "model": "auto",
-            "messages": [{"role": "user", "content": "Hello!"}],
-        },
-    )
-    print(response.json()["choices"][0]["message"]["content"])
-    ```
-  </Tab>
-
-  <Tab title="JavaScript fetch">
-    ```javascript
-    const response = await fetch("https://api.llm.kiwi/v1/chat/completions", {
-        method: "POST",
-        headers: {
-            Authorization: "Bearer sk_kiwi_...",
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            model: "auto",
-            messages: [{ role: "user", content: "Hello!" }],
-        }),
-    });
-    const data = await response.json();
-    console.log(data.choices[0].message.content);
-    ```
-  </Tab>
-</Tabs>
-
-## Framework integrations
-
-These popular frameworks work with LLM.kiwi via the OpenAI SDK:
-
-| Framework | Language | How to connect |
-|-----------|----------|----------------|
-| LangChain | Python / JS | Set `openai_api_base` to `https://api.llm.kiwi/v1` |
-| LlamaIndex | Python | Use `OpenAI` class with custom base URL |
-| Vercel AI SDK | JS / TS | Pass `baseURL: "https://api.llm.kiwi/v1"` |
-| Chainlit | Python | Configure OpenAI settings with LLM.kiwi URL |
+The simplest LLM.kiwi clients are the OpenAI Python and JavaScript packages configured with the custom chat completions base URL.
 
 <Note>
-  Any library that supports OpenAI's API format will work. If it lets you set a custom base URL, point it to `https://api.llm.kiwi/v1`.
+  Compatibility applies to the endpoints and fields documented by LLM.kiwi. A library may expose additional OpenAI features that LLM.kiwi does not support.
 </Note>
+
+## Python
+
+Install:
+
+```bash
+python -m pip install openai
+```
+
+Configure:
+
+```python
+import os
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://api.llm.kiwi/v1",
+    api_key=os.environ["LLM_KIWI_API_KEY"],
+)
+
+response = client.chat.completions.create(
+    model="auto",
+    messages=[{"role": "user", "content": "Hello!"}],
+)
+
+print(response.choices[0].message.content)
+```
+
+## JavaScript and TypeScript
+
+Install:
+
+```bash
+npm install openai
+```
+
+Configure in server-side code:
+
+```javascript
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  baseURL: "https://api.llm.kiwi/v1",
+  apiKey: process.env.LLM_KIWI_API_KEY,
+});
+
+const response = await client.chat.completions.create({
+  model: "auto",
+  messages: [{ role: "user", content: "Hello!" }],
+});
+
+console.log(response.choices[0].message.content);
+```
+
+<Warning>
+  Do not initialize a private API client in browser-side React, Vue, Svelte, or plain JavaScript. Send browser requests to your own backend, then call LLM.kiwi from that backend.
+</Warning>
+
+## Direct HTTP
+
+You do not need an SDK. Any server-side HTTP client can call the API.
+
+```bash
+curl "https://api.llm.kiwi/v1/chat/completions" \
+  -H "Authorization: Bearer $LLM_KIWI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "auto",
+    "messages": [{"role": "user", "content": "Hello!"}]
+  }'
+```
+
+A direct HTTP client is useful when:
+
+- Your language has no maintained OpenAI-compatible SDK.
+- You want minimal dependencies.
+- You need precise control over timeouts, retries, or streaming.
+
+## Other clients and frameworks
+
+Before using a community library, confirm that it lets you configure all three items:
+
+1. Base URL: `https://api.llm.kiwi/v1`
+2. Bearer API key
+3. Chat completions model name such as `auto`
+
+Frameworks may change their configuration names between versions. Follow the framework's current documentation and verify the generated request against the [API reference](/api-reference).
+
+## Which option should I choose?
+
+| Your project | Recommended starting point |
+| --- | --- |
+| Python backend or script | OpenAI Python package |
+| Node.js or TypeScript backend | OpenAI JavaScript package |
+| Another server-side language | Maintained OpenAI-compatible client or direct HTTP |
+| Browser or mobile interface | Your own backend proxy; never embed the key |
+| Learning the API itself | cURL or direct HTTP |
+
+<CardGroup cols={2}>
+  <Card title="Copy complete examples" icon="code" href="/examples">
+    Start with tested request patterns.
+  </Card>
+
+  <Card title="Review endpoint fields" icon="brackets-curly" href="/api-reference">
+    Check request and response formats.
+  </Card>
+</CardGroup>

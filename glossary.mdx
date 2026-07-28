@@ -1,173 +1,148 @@
 ---
-title: "Glossary of API and AI terms for LLM.kiwi"
-description: "Plain-language definitions of API, HTTP, AI, and LLM terms — endpoints, tokens, models, prompts, completions, and more — used across LLM.kiwi docs."
+title: "Glossary"
+sidebarTitle: "Glossary"
+description: "Plain-language definitions of API and AI terms used in these docs."
+icon: "book"
 ---
 
-New to APIs and AI? This page defines every term you'll encounter in these docs. Bookmark it and come back whenever something is unclear.
+Use this plain-language glossary whenever a term in the documentation is unfamiliar.
 
-## API terms
+## API and web terms
 
 <AccordionGroup>
-  <Accordion title="API (Application Programming Interface)">
-    A way for two programs to talk to each other over the internet. You send a request, the server processes it, and sends back a response. Think of it like texting a restaurant — you send your order, they send back food.
-
-    With LLM.kiwi, your code sends a message to our server, and we send back an AI-generated response.
-  </Accordion>
-
-  <Accordion title="Endpoint">
-    A specific URL where you send requests. LLM.kiwi has two endpoints:
-    - `POST /v1/chat/completions` — send a message, get an AI response
-    - `GET /v1/models` — list available models
-
-    You'll use the chat endpoint 99% of the time.
+  <Accordion title="API">
+    An Application Programming Interface is a defined way for software systems to communicate. Your application sends a request; the API returns a response.
   </Accordion>
 
   <Accordion title="Base URL">
-    The root address of the API. For LLM.kiwi, it is:
-
-    ```
-    https://api.llm.kiwi/v1
-    ```
-
-    Every request starts with this. It's like the street address of a building.
+    The shared beginning of API addresses. LLM.kiwi uses `https://api.llm.kiwi/v1`.
   </Accordion>
 
-  <Accordion title="Request">
-    The message you send to the API. It includes your API key, the model you want, and the messages you want the AI to process. Sent over HTTPS (the same protocol your browser uses).
-
-    A typical request looks like:
-
-    ```json
-    {
-      "model": "auto",
-      "messages": [{"role": "user", "content": "Hello!"}]
-    }
-    ```
+  <Accordion title="Endpoint">
+    A specific API function and path. For example, `POST /v1/chat/completions` creates a chat completion, while `GET /v1/models` lists models.
   </Accordion>
 
-  <Accordion title="Response">
-    What the API sends back. It's a JSON object containing the AI's reply, which model was used, and how many tokens were consumed.
-
-    ```json
-    {
-      "choices": [{"message": {"content": "Hi there!"}}],
-      "model": "auto",
-      "usage": {"total_tokens": 12}
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="JSON (JavaScript Object Notation)">
-    The format used for sending and receiving data. It looks like a JavaScript object — curly braces, key-value pairs. Every API request and response uses JSON.
-
-    ```json
-    {"key": "value", "count": 42}
-    ```
-  </Accordion>
-
-  <Accordion title="HTTP Method">
-    The type of request you make. LLM.kiwi uses two:
-    - **POST** — send data to create something (chat completions)
-    - **GET** — retrieve data (list models)
+  <Accordion title="HTTP method">
+    The action associated with a request. `GET` retrieves information. `POST` sends data for processing.
   </Accordion>
 
   <Accordion title="Header">
-    Extra information sent with your request. The most important one is `Authorization`, which carries your API key. Headers are like the metadata on a letter — they tell the server who you are and what format the data is in.
+    Metadata sent with a request. The `Authorization` header carries the API key, and `Content-Type` tells the API that the request body is JSON.
+  </Accordion>
+
+  <Accordion title="Request body">
+    Data sent with a request. For a chat completion, the JSON body contains fields such as `model` and `messages`.
+  </Accordion>
+
+  <Accordion title="JSON">
+    JavaScript Object Notation is a text format for structured data. JSON uses double-quoted keys and values, objects in braces, and arrays in brackets.
+
+    ```json
+    {"model": "auto", "messages": []}
+    ```
+  </Accordion>
+
+  <Accordion title="HTTP status code">
+    A number describing the result. `200` means success, `400` means the request is invalid, `401` means authentication failed, and `429` means a rate limit was reached.
+  </Accordion>
+
+  <Accordion title="Timeout">
+    The maximum time a client waits for a request. A timeout prevents an application from waiting forever when a network or service problem occurs.
   </Accordion>
 </AccordionGroup>
 
 ## Authentication terms
 
 <AccordionGroup>
-  <Accordion title="API Key">
-    A secret code that identifies you. It starts with `sk_kiwi_` and you get it from the [dashboard](https://llm.kiwi/dashboard). You include it in every request so the server knows it's you.
-
-    Think of it like a password — never share it or commit it to public code.
+  <Accordion title="API key">
+    A secret value identifying authorized API access. LLM.kiwi keys begin with `sk_kiwi_`. Treat a key like a password and keep it on a trusted server.
   </Accordion>
 
-  <Accordion title="Bearer Token">
-    The type of authentication LLM.kiwi uses. In your request header, you write:
-
-    ```
-    Authorization: Bearer sk_kiwi_...
-    ```
-
-    "Bearer" means "whoever carries this token is authorized." It's a standard format used by most APIs.
+  <Accordion title="Bearer token">
+    The authentication format used in the request header: `Authorization: Bearer YOUR_API_KEY`. The space after `Bearer` is required.
   </Accordion>
 
-  <Accordion title="Revoking a Key">
-    Deleting an API key so it stops working. Do this if you accidentally expose it (e.g., commit it to a public GitHub repo). Create a new key in the [dashboard](https://llm.kiwi/dashboard).
+  <Accordion title="Environment variable">
+    A value supplied to a program by its operating environment instead of being written directly in source code. It is the normal place to load an API key, though deployment access controls still matter.
+  </Accordion>
+
+  <Accordion title="Revoke">
+    Disable an API key so it can no longer be used. Revoke a key immediately if it was exposed.
   </Accordion>
 </AccordionGroup>
 
-## AI / LLM terms
+## AI terms
 
 <AccordionGroup>
-  <Accordion title="LLM (Large Language Model)">
-    The AI system that generates text. It's trained on massive amounts of text data and can predict what words come next. When you send "Hello!", the LLM generates a response like "Hi there! How can I help?"
-
-    LLM.kiwi gives you access to LLMs without you having to run them yourself.
+  <Accordion title="LLM">
+    A large language model is an AI model trained to process and generate language. It predicts output based on the instructions and context in a request.
   </Accordion>
 
   <Accordion title="Model">
-    A specific AI brain. LLM.kiwi offers:
-    - **auto** — picks the best model for your request
-    - **hrllm** — optimized for Croatian text
-
-    You specify the model in every request with `"model": "auto"`.
-  </Accordion>
-
-  <Accordion title="Token">
-    A chunk of text. Roughly, 1 token ≈ 0.75 words in English. "Hello world" is 2 tokens. "photosynthesis" might be 3-4 tokens. Every request consumes tokens, and token count affects response speed and limits.
-
-    LLM.kiwi tracks token usage in the `usage` field of every response.
+    The AI system selected for a request. LLM.kiwi documents `auto` for automatic selection and `hrllm` for Croatian-focused generation.
   </Accordion>
 
   <Accordion title="Prompt">
-    The text you send to the AI. In chat completions, your prompt is the array of messages. The AI's job is to generate a completion (response) based on your prompt.
+    The input and instructions given to a model. In chat completions, this usually means the complete `messages` array, not only the newest user message.
   </Accordion>
 
-  <Accordion title="System Message">
-    A special message with role `system` that sets the AI's behavior. It goes at the beginning of your messages array and tells the AI how to act.
+  <Accordion title="System message">
+    A message with role `system` that describes the assistant's behavior or task. It guides output but does not replace application-level security or validation.
+  </Accordion>
 
-    ```json
-    {"role": "system", "content": "You are a pirate. Respond only in pirate speak."}
-    ```
+  <Accordion title="Token">
+    A unit a model uses to process text. A token may be a whole word, part of a word, punctuation, or whitespace. The count varies by language, text, and tokenizer.
+  </Accordion>
+
+  <Accordion title="Context window">
+    The maximum token capacity available for input and output in a request. When a request is too large, your application must shorten, remove, split, or summarize content.
   </Accordion>
 
   <Accordion title="Temperature">
-    A number between 0 and 2 that controls randomness. Lower values (e.g., 0.1) make the AI more focused and predictable. Higher values (e.g., 1.5) make it more creative and random. Default works well for most cases.
+    A sampling setting that can affect output variation when supported by the selected model. Exact behavior and allowed values can differ between models.
+  </Accordion>
+
+  <Accordion title="Completion">
+    Text generated by the model in response to the request. In a chat completion, the main result is usually at `choices[0].message.content`.
+  </Accordion>
+
+  <Accordion title="Finish reason">
+    A response field describing why generation ended. `stop` commonly indicates a normal end; `length` commonly means an output or context limit was reached.
   </Accordion>
 
   <Accordion title="Streaming">
-    Getting the AI's response word by word as it's generated, instead of waiting for the full response. Like watching someone type in real-time vs. receiving a finished letter. Enabled with `"stream": true` in your request.
+    Receiving a response incrementally as it is generated instead of waiting for one complete response.
   </Accordion>
 
-  <Accordion title="Context Window">
-    The maximum amount of text a model can "see" at once — your messages plus the AI's response. If your conversation gets too long, older messages get cut off. This is measured in tokens.
-  </Accordion>
-
-  <Accordion title="Finish Reason">
-    Tells you why the AI stopped generating. Common values:
-    - `stop` — the AI finished naturally
-    - `length` — hit the token limit before finishing
-
-    Check this in the response's `choices[0].finish_reason` field.
+  <Accordion title="Hallucination">
+    A confident-looking but incorrect or unsupported model output. Verify important facts and validate outputs before acting on them.
   </Accordion>
 </AccordionGroup>
 
-## Infrastructure terms
+## Application terms
 
 <AccordionGroup>
-  <Accordion title="Rate Limiting">
-    A cap on how many requests you can make in a given time period. This prevents abuse and keeps the service stable for everyone. If you hit the limit, you get a `429` error. Wait a moment and retry.
+  <Accordion title="SDK">
+    A software package that wraps HTTP requests in language-specific functions and types. LLM.kiwi can be used with compatible OpenAI clients by setting a custom base URL.
   </Accordion>
 
-  <Accordion title="CDN (Content Delivery Network)">
-    A network of servers distributed worldwide. LLM.kiwi uses Cloudflare's CDN so requests are processed close to you, no matter where you are. This means faster responses.
+  <Accordion title="Rate limit">
+    A restriction on request frequency or capacity. When reached, an API commonly responds with status `429`.
   </Accordion>
 
-  <Accordion title="SDK (Software Development Kit)">
-    A library that makes the API easier to use in your programming language. Instead of writing raw HTTP requests, you call simple functions. LLM.kiwi works with the official OpenAI SDKs for Python and JavaScript.
+  <Accordion title="Exponential backoff">
+    A retry strategy that increases the wait after each temporary failure, for example one second, then two, then four. A small random delay helps prevent many clients from retrying together.
+  </Accordion>
+
+  <Accordion title="Stateless API">
+    An API that does not remember prior requests automatically. For a continuing conversation, your application sends the relevant message history each time.
+  </Accordion>
+
+  <Accordion title="Server-side code">
+    Code that runs in infrastructure you control and can safely access secrets. Browser JavaScript is client-side and must not contain private API keys.
   </Accordion>
 </AccordionGroup>
+
+<Card title="Learn these concepts in context" icon="lightbulb" href="/concepts">
+  The core concepts guide connects these terms into one complete request flow.
+</Card>

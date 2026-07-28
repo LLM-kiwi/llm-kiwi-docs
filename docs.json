@@ -29,6 +29,16 @@
         "description": "Free OpenAI-compatible API documentation",
         "groups": [
           {
+            "group": "Get started",
+            "icon": "rocket",
+            "expanded": true,
+            "pages": [
+              "index",
+              "quickstart",
+              "concepts"
+            ]
+          },
+          {
             "group": "Build with LLM.kiwi",
             "icon": "code",
             "pages": [
@@ -46,16 +56,6 @@
               "api-reference",
               "limits",
               "errors"
-            ]
-          },
-          {
-            "group": "Get started",
-            "icon": "rocket",
-            "expanded": true,
-            "pages": [
-              "index",
-              "quickstart",
-              "concepts"
             ]
           },
           {

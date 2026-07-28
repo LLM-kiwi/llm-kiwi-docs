@@ -1,135 +1,185 @@
 ---
-title: "Troubleshooting the LLM.kiwi API: fixes for common errors"
-description: "Fix common LLM.kiwi issues: 401 unauthorized, 429 rate limits, timeouts, malformed JSON, streaming problems, and OpenAI SDK base URL mistakes."
+title: "Troubleshooting"
+sidebarTitle: "Troubleshooting"
+description: "Diagnose authentication, request, connection, SDK, and streaming problems."
+icon: "wrench"
 ---
 
-## Common errors
+Begin with this minimal check to separate account or network problems from bugs in your application code.
 
-### 401 Unauthorized
+```bash
+curl "https://api.llm.kiwi/v1/models" \
+  -H "Authorization: Bearer $LLM_KIWI_API_KEY"
+```
 
-**You see:** `Invalid API key` or `Unauthorized`
+If it returns a model list, your base URL, network connection, and key are working.
 
-**Causes:**
-- Missing `Authorization` header
-- API key is misspelled or truncated
-- Key was revoked in the dashboard
+## Quick diagnosis
 
-**Fix:**
-1. Check your header format: `Authorization: Bearer sk_kiwi_...` (note the `Bearer ` prefix)
-2. Copy your key again from the [dashboard](https://llm.kiwi/dashboard)
-3. If still failing, create a new key
+| Symptom | Check first |
+| --- | --- |
+| `401 Unauthorized` | API key and `Bearer ` prefix |
+| `400 Bad Request` | JSON syntax, `model`, and `messages` |
+| `404 Not Found` | Base URL and endpoint path |
+| `429 Too Many Requests` | Request frequency and retry loop |
+| Timeout or connection error | HTTPS URL, DNS, firewall, and service availability |
+| Works in cURL but not the SDK | SDK `base_url` / `baseURL` setting |
+| No visible streaming text | `stream: true` and chunk iteration |
 
----
+## 401: unauthorized
 
-### 429 Rate Limited
+Use exactly this header shape:
 
-**You see:** `Rate limit exceeded` or `Too many requests`
+```http
+Authorization: Bearer sk_kiwi_...
+```
 
-**Causes:**
-- Sending too many requests in a short time
+Check that:
 
-**Fix:**
-1. Wait a few seconds and retry
-2. Add a delay between requests in your code
-3. Consider upgrading to [Pro](https://llm.kiwi/pricing) for higher limits
+- There is one space after `Bearer`.
+- The key was copied completely with no quotes or trailing whitespace.
+- The key has not been revoked.
+- Your environment variable is available to the running process.
 
----
+<Tabs>
+  <Tab title="macOS and Linux">
+    Confirm only that a value exists without printing the secret:
 
-### 400 Bad Request
+    ```bash
+    test -n "$LLM_KIWI_API_KEY" && echo "Key is set" || echo "Key is missing"
+    ```
+  </Tab>
+  <Tab title="Windows PowerShell">
+    ```powershell
+    if ($env:LLM_KIWI_API_KEY) { "Key is set" } else { "Key is missing" }
+    ```
+  </Tab>
+</Tabs>
 
-**You see:** `Invalid request` or `Missing required field`
+If needed, revoke the old key and create a new one in the [dashboard](https://llm.kiwi/dashboard).
 
-**Causes:**
-- Missing `model` or `messages` field
-- Malformed JSON body
-- `messages` is not an array
+## 400: bad request
 
-**Fix:**
-1. Make sure your JSON is valid (use [jsonlint.com](https://jsonlint.com) to check)
-2. Ensure `model` is set to `"auto"` or `"hrllm"`
-3. Ensure `messages` is an array of objects with `role` and `content`
-
-**Correct format:**
+A minimal valid body is:
 
 ```json
 {
   "model": "auto",
   "messages": [
-    { "role": "user", "content": "Hello!" }
+    {"role": "user", "content": "Hello!"}
   ]
 }
 ```
 
----
+Common mistakes:
 
-### Empty or null response
+- Single quotes or missing commas in JSON
+- `messages` sent as an object instead of an array
+- Missing `role` or `content`
+- Unsupported model value
+- Sending a JSON string inside another JSON object
+- Forgetting `Content-Type: application/json`
 
-**You see:** `content` is `null` or the response has no text.
+Compare your request with the [API reference](/api-reference#create-a-chat-completion).
 
-**Causes:**
-- The model's `finish_reason` might be `"length"` (hit token limit)
+## 404: not found
 
-**Fix:**
-1. Increase `max_tokens` in your request
-2. Shorten your input messages
+Use:
 
----
-
-### Connection refused / timeout
-
-**You see:** `ECONNREFUSED` or request times out.
-
-**Causes:**
-- Wrong base URL
-- Network/firewall issues
-
-**Fix:**
-1. Make sure you're using `https://api.llm.kiwi/v1` (not `http`)
-2. Check that your network allows HTTPS traffic
-3. Try again — it might be a temporary issue
-
----
-
-## Debugging tips
-
-### Check your request
-
-Use `curl` to test your request manually:
-
-```bash
-curl -v -X POST "https://api.llm.kiwi/v1/chat/completions" \
-  -H "Authorization: Bearer sk_kiwi_..." \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "auto",
-    "messages": [{"role": "user", "content": "Hello!"}]
-  }'
+```text
+https://api.llm.kiwi/v1
 ```
 
-The `-v` flag shows detailed request/response headers.
+With an SDK, the base URL ends at `/v1`:
 
-### Verify your key
-
-List available models to confirm your key works:
-
-```bash
-curl "https://api.llm.kiwi/v1/models" \
-  -H "Authorization: Bearer sk_kiwi_..."
+```python
+client = OpenAI(base_url="https://api.llm.kiwi/v1", api_key=key)
 ```
 
-If this returns a list of models, your key is valid.
+With direct HTTP, add the endpoint:
 
-### Check the response
+```text
+https://api.llm.kiwi/v1/chat/completions
+```
 
-Look at the full JSON response. The `error` object (if present) tells you exactly what went wrong.
+Do not add `/v1` twice.
 
-## Still stuck?
+## 429: rate limited
 
-<CardGroup>
+Wait before retrying. Repeated immediate retries make the problem worse.
+
+- Respect `Retry-After` when present.
+- Use exponential backoff and a small random delay.
+- Limit concurrency in loops and background jobs.
+- Stop after a small number of failed attempts.
+
+See [Limits and pricing](/limits#rate-limits) for an example.
+
+## Timeout or connection failure
+
+1. Confirm the URL begins with `https://`.
+2. Run the model-list cURL check from the same machine.
+3. Check whether a proxy, VPN, firewall, or hosting provider blocks outbound HTTPS.
+4. Set a reasonable client timeout such as 30 seconds.
+5. Retry temporary failures a limited number of times.
+
+A connection error means no valid HTTP response was received. A `500` or `503` means the API did respond but could not complete the request.
+
+## SDK uses the wrong service
+
+The most common configuration error is forgetting the custom base URL.
+
+<Tabs>
+  <Tab title="Python">
+    ```python
+    client = OpenAI(
+        base_url="https://api.llm.kiwi/v1",
+        api_key=os.environ["LLM_KIWI_API_KEY"],
+    )
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```javascript
+    const client = new OpenAI({
+      baseURL: "https://api.llm.kiwi/v1",
+      apiKey: process.env.LLM_KIWI_API_KEY,
+    });
+    ```
+  </Tab>
+</Tabs>
+
+Note the naming difference: Python uses `base_url`; JavaScript uses `baseURL`.
+
+## Streaming shows nothing
+
+Confirm all three conditions:
+
+1. The request includes `stream: true`.
+2. Your code iterates over chunks instead of waiting for a normal completion object.
+3. Your terminal or web server flushes output instead of buffering it.
+
+Begin with an SDK streaming example from [Code examples](/examples#stream-a-response) before implementing raw SSE parsing.
+
+## Before contacting support
+
+Collect:
+
+- Approximate time of the failed request and your timezone
+- HTTP status code
+- Error `type`, `code`, and message
+- Endpoint and SDK name/version
+- A minimal request with private data removed
+
+<Warning>
+  Never send your full API key. Redact it as `sk_kiwi_...last4`.
+</Warning>
+
+<CardGroup cols={2}>
   <Card title="Contact support" icon="envelope" href="mailto:support@llm.kiwi">
-    Email support@llm.kiwi with your error details.
+    Email [support@llm.kiwi](mailto:support@llm.kiwi) with the safe diagnostic details above.
   </Card>
-  <Card title="API Reference" icon="file-code" href="/api-reference">
-    Full endpoint documentation and error codes.
+
+  <Card title="Error reference" icon="triangle-exclamation" href="/errors">
+    Look up status-specific behavior.
   </Card>
 </CardGroup>

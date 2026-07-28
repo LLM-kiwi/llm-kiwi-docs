@@ -1,163 +1,145 @@
 ---
-title: "Core concepts: APIs, tokens, and chat completions"
-description: "Beginner-friendly guide to APIs, HTTP requests, tokens, models, messages, and chat completions — the building blocks behind every LLM.kiwi call."
+title: "Core concepts"
+sidebarTitle: "Core concepts"
+description: "Plain-English explanations of APIs, requests, messages, models, and tokens."
+icon: "lightbulb"
 ---
 
-If you're new to APIs or AI chat, this page explains everything you need to know. We'll build from the ground up — no prior knowledge required.
+This guide explains the building blocks behind every LLM.kiwi request, with no previous API or AI knowledge required.
 
-<Info>New to programming? Think of an API like a restaurant menu — you tell the kitchen what you want (send a request), and they bring you your food (send back a response). LLM.kiwi is the kitchen that cooks up AI responses.</Info>
+<Info>
+  Think of an API like ordering at a restaurant: you place an order (send a request), the kitchen prepares it (the model processes it), and you receive your meal (the response).
+</Info>
 
 ## What is an API?
 
-API stands for **Application Programming Interface**. It's just a way for two programs to talk to each other over the internet.
+API stands for **Application Programming Interface**. It is a defined way for two programs to communicate.
 
-Think of it like texting a restaurant:
-- **You** send a message: "I want a pizza"
-- **The restaurant** processes it and sends back: "Your pizza is on the way"
+With LLM.kiwi:
 
-You never go into the kitchen. You just send a message and get a result. That's exactly how LLM.kiwi works.
+1. Your code sends a message to the API.
+2. LLM.kiwi passes it to an AI model.
+3. The API returns the model's answer to your code.
 
-**With LLM.kiwi:**
-1. Your code sends a message to our server
-2. Our server runs it through an AI model
-3. We send back the AI's response
+You do not need to download or operate an AI model yourself.
 
-That's it. No AI expertise needed. If you can send an HTTP request, you can use LLM.kiwi.
+## Base URL and endpoint
 
-## Base URL
+The **base URL** is the common address for the API:
 
-The **base URL** is the address where the API lives. For LLM.kiwi it is:
-
-```
+```text
 https://api.llm.kiwi/v1
 ```
 
-Every request you send starts with this URL. Think of it like the street address of a building — you always go there first.
+An **endpoint** is a specific function at that address. The endpoint used for conversations is:
 
-If you're using an SDK (like the OpenAI Python library), you set this once and forget it.
+```text
+POST https://api.llm.kiwi/v1/chat/completions
+```
+
+`POST` means your program sends data to the endpoint.
 
 ## Authentication
 
-Every request must include your **API key** in the `Authorization` header. This is how the server knows it's you.
+Every request must include an API key in the `Authorization` header:
 
-```
+```text
 Authorization: Bearer sk_kiwi_abc123xyz
 ```
 
+- `Authorization` is the header name.
+- `Bearer` is the authentication scheme and must include the space after it.
+- `sk_kiwi_...` is your private key.
+
 <Warning>
-  Never share your API key or commit it to public code repositories. If you accidentally expose it, revoke it immediately in the [dashboard](https://llm.kiwi/dashboard).
+  An API key is a password for programmatic access. Store it in an environment variable, never expose it in browser-side code, and revoke it in the [dashboard](https://llm.kiwi/dashboard) if it leaks.
 </Warning>
 
-Your key always starts with `sk_kiwi_`. You can create and revoke keys from the [dashboard](https://llm.kiwi/dashboard).
+## JSON request body
 
-**How it works:**
-- Your API key is like a password for your account
-- Every request includes it in the header
-- The server checks it before processing your request
-- If it's invalid or missing, you get a `401` error
-
-## Messages
-
-The chat completions API works by sending an array of **messages**. Each message has two parts:
-
-- **role** — who is speaking
-- **content** — what they said
-
-### Roles
-
-| Role | Meaning | Example |
-|------|---------|---------|
-| `system` | Instructions for the AI's behavior | "You are a helpful tutor." |
-| `user` | A message from you (the human) | "What is photosynthesis?" |
-| `assistant` | A previous response from the AI | "Photosynthesis is how plants make food." |
-
-A typical request looks like this:
+JSON is a text format for structured data. A basic request body looks like this:
 
 ```json
 {
+  "model": "auto",
   "messages": [
-    { "role": "system", "content": "You are a helpful assistant." },
     { "role": "user", "content": "What is the capital of France?" }
   ]
 }
 ```
 
+JSON uses double quotes around names and text. Items are separated by commas.
+
+## Messages and roles
+
+The `messages` array contains the conversation. Each message has a `role` and `content`.
+
+| Role | Meaning | Example |
+| --- | --- | --- |
+| `system` | Instructions for how the assistant should behave | `You are a concise tutor.` |
+| `user` | Input from your user or application | `Explain gravity.` |
+| `assistant` | A previous AI response included as conversation history | `Gravity attracts objects.` |
+
+### System instructions
+
+Place a system message first when you want consistent behavior:
+
+```json
+{
+  "messages": [
+    { "role": "system", "content": "Answer in simple Croatian." },
+    { "role": "user", "content": "Objasni što je API." }
+  ]
+}
+```
+
+System instructions guide the model but should not be treated as a security boundary. Validate important outputs in your own application.
+
 ### Multi-turn conversations
 
-To have a back-and-forth conversation, include previous messages in the array. The AI uses them as context:
+The API does not remember earlier requests automatically. To continue a conversation, send the relevant history again:
 
 ```json
 {
   "messages": [
     { "role": "user", "content": "My name is Alice." },
-    { "role": "assistant", "content": "Hi Alice! How can I help?" },
-    { "role": "user", "content": "What's my name?" }
+    { "role": "assistant", "content": "Hi Alice!" },
+    { "role": "user", "content": "What is my name?" }
   ]
 }
 ```
 
-The AI will answer "Alice" because it can see the earlier messages.
-
 <Note>
-  Each message you add costs tokens. For long conversations, you may need to remove older messages to stay within limits.
+  Longer history uses more tokens. Keep the messages that matter and summarize or remove old content when conversations grow.
 </Note>
-
-### System messages
-
-System messages control the AI's behavior. Put them at the beginning of your messages array:
-
-```json
-{"role": "system", "content": "You are a pirate. Respond only in pirate speak."}
-```
-
-```json
-{"role": "system", "content": "You are a math tutor. Always explain step by step."}
-```
-
-```json
-{"role": "system", "content": "You are a translation bot. Only output the translation, nothing else."}
-```
 
 ## Models
 
-A **model** is the AI brain that generates responses. LLM.kiwi offers two:
+A model is the AI system that generates the response.
 
-| Model | What it does | When to use it |
-|-------|-------------|----------------|
-| `auto` | Automatically picks the best available model | Most of the time |
-| `hrllm` | Dedicated Croatian-language model | When you need Croatian output |
+| Model | What it does | Recommended use |
+| --- | --- | --- |
+| `auto` | Selects an available model automatically | Default for most applications |
+| `hrllm` | Focuses on Croatian-language generation | Croatian content and conversations |
 
-Set the model in your request body:
+If you are unsure, start with `auto`. See [Models](/models) for current details.
 
-```json
-{
-  "model": "auto",
-  "messages": [...]
-}
-```
+## Tokens
 
-If you're unsure, always use `auto`. It routes your request to the best model available, and the selection updates automatically as new models are added. Read more in [Models](/models).
+Models process text in **tokens**, which are small pieces of words and punctuation. A token is not always a complete word.
 
-## The full request lifecycle
+Tokens matter because:
 
-Here's what happens when you make a request:
+- Your input and conversation history consume input tokens.
+- The generated answer consumes output tokens.
+- Each model has a maximum context size.
+- Service limits may be measured using tokens.
 
-```mermaid
-sequenceDiagram
-    participant You
-    participant LLM.kiwi
-    participant AI Model
-
-    You->>LLM.kiwi: POST /v1/chat/completions (messages + model)
-    LLM.kiwi->>LLM.kiwi: Validate API key
-    LLM.kiwi->>AI Model: Route to model (or auto-select)
-    AI Model->>LLM.kiwi: Generate response
-    LLM.kiwi->>You: Return JSON response
-```
+The `usage` object in a response reports token counts when available.
 
 ## Response format
 
-The API returns JSON. The important parts are:
+A successful response is JSON. The value most applications need is `choices[0].message.content`:
 
 ```json
 {
@@ -169,53 +151,70 @@ The API returns JSON. The important parts are:
       "index": 0,
       "message": {
         "role": "assistant",
-        "content": "Hello! How can I help you today?"
+        "content": "Paris is the capital of France."
       },
       "finish_reason": "stop"
     }
   ],
   "usage": {
-    "prompt_tokens": 12,
-    "completion_tokens": 9,
-    "total_tokens": 21
+    "prompt_tokens": 15,
+    "completion_tokens": 8,
+    "total_tokens": 23
   }
 }
 ```
 
 | Field | Meaning |
-|-------|---------|
-| `choices[0].message.content` | The AI's actual response (what you want) |
-| `model` | Which model handled your request |
-| `usage` | How many tokens were consumed |
-| `finish_reason` | Why the model stopped (`stop` = normal end) |
+| --- | --- |
+| `choices[0].message.content` | The generated answer |
+| `model` | The model reported for the request |
+| `usage` | Input, output, and total token counts |
+| `finish_reason` | Why generation ended; `stop` is a normal completion |
 
-## Endpoints
+## Request lifecycle
 
-LLM.kiwi provides two endpoints:
+```mermaid
+sequenceDiagram
+    participant App
+    participant API as LLM.kiwi API
+    participant Model
+    App->>API: Request + API key
+    API->>API: Validate request
+    API->>Model: Route messages
+    Model-->>API: Generated answer
+    API-->>App: JSON response
+```
 
-| Method | Path | Purpose |
-|--------|------|---------|
-| `GET` | `/v1/models` | List available models |
-| `POST` | `/v1/chat/completions` | Send a chat message and get a response |
+## Errors
 
-The chat completions endpoint is what you'll use 99% of the time.
+Responses use HTTP status codes:
 
-## What to do next
+| Status | Meaning |
+| --- | --- |
+| `200` | Request succeeded |
+| `400` | Request data is invalid |
+| `401` | API key is missing or invalid |
+| `429` | A rate limit was reached |
+| `500` or `503` | Temporary server or model issue |
 
-<CardGroup>
-  <Card title="Quickstart" icon="rocket" href="/quickstart">
-    Get your API key and make your first request.
+Your code should check the status, show a useful message, and retry only temporary failures. See [Error reference](/errors).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Make your first request" icon="rocket" href="/quickstart">
+    Follow the complete beginner quickstart.
   </Card>
-  <Card title="Glossary" icon="book" href="/glossary">
-    Every term explained simply.
+
+  <Card title="Explore models" icon="brain" href="/models">
+    Choose the best model for your task.
   </Card>
-  <Card title="Models" icon="brain" href="/models">
-    Learn about `auto` and `hrllm` in detail.
+
+  <Card title="Use a working example" icon="code" href="/examples">
+    Copy complete Python, JavaScript, and cURL examples.
   </Card>
-  <Card title="Use Cases" icon="wand-magic-sparkles" href="/use-cases">
-    Build real projects with code examples.
-  </Card>
-  <Card title="Code Examples" icon="code" href="/examples">
-    Working examples in multiple languages.
+
+  <Card title="Look up a term" icon="book" href="/glossary">
+    Use the plain-language glossary.
   </Card>
 </CardGroup>

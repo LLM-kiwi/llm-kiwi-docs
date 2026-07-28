@@ -1,101 +1,122 @@
 ---
-title: "LLM.kiwi limits and pricing: free plan and quotas"
-description: "LLM.kiwi is free forever — see rate limits, request quotas, token caps, context windows, supported models, and fair-use policies for the free plan."
+title: "Limits and pricing"
+sidebarTitle: "Limits and pricing"
+description: "Understand free access, rate limits, token usage, and fair-use behavior."
+icon: "gauge"
 ---
 
-## Free plan
+LLM.kiwi is currently free to use without a credit card. Usage limits protect reliable access for everyone.
 
-LLM.kiwi is free forever. No credit card, no trial period.
+<Note>
+  Limits can change as capacity and model availability change. Treat response headers and API errors as the runtime source of truth rather than hardcoding a quota into your application.
+</Note>
 
-| Feature | Free |
-|---------|------|
-| Price | $0/month |
-| API key creation | Unlimited |
-| Models | `auto`, `hrllm` |
+## Free access
+
+| Item | Current behavior |
+| --- | --- |
+| Price | Free |
+| Credit card | Not required |
+| API keys | Created and managed in the dashboard |
+| Models | Query `GET /v1/models` for current availability |
 | Base URL | `https://api.llm.kiwi/v1` |
+
+Free access does not mean unlimited capacity. Applications must handle rate limits and temporary unavailability gracefully.
 
 ## Rate limits
 
-Rate limits prevent abuse and keep the service fast for everyone.
+When a limit is reached, the API returns HTTP `429 Too Many Requests`.
 
-| Limit | Details |
-|-------|---------|
-| Requests per minute | Varies by plan |
-| Tokens per request | Standard context window |
-| Concurrent requests | Limited |
+Your application should:
 
-If you exceed the rate limit, the API returns a `429` error. Wait a few seconds and retry.
-
-**How to handle rate limits in code:**
+1. Stop sending immediate retries.
+2. Respect `Retry-After` if the response includes it.
+3. Otherwise wait using exponential backoff with small random jitter.
+4. Give up after a limited number of attempts.
+5. Show the user a clear, temporary error.
 
 ```python
+import random
 import time
+from openai import RateLimitError
 
-def make_request_with_retry(client, messages, max_retries=3):
-    for attempt in range(max_retries):
+
+def create_with_retry(client, messages, attempts=3):
+    for attempt in range(attempts):
         try:
-            response = client.chat.completions.create(
+            return client.chat.completions.create(
                 model="auto",
                 messages=messages,
+                timeout=30,
             )
-            return response
-        except openai.RateLimitError:
-            if attempt < max_retries - 1:
-                time.sleep(2 ** attempt)  # exponential backoff
-            else:
+        except RateLimitError:
+            if attempt == attempts - 1:
                 raise
+            delay = (2 ** attempt) + random.uniform(0, 0.5)
+            time.sleep(delay)
 ```
 
-## Token usage
+Do not create many API keys to evade limits. That can degrade the service and may lead to access restrictions.
 
-Every request consumes tokens. Tokens are chunks of text — roughly 1 token ≈ 0.75 words in English.
+## Tokens and context
 
-The API reports usage in every response:
+Models process text as tokens. Both your input and the generated output count toward the model's context capacity.
 
 ```json
 {
   "usage": {
-    "prompt_tokens": 15,
-    "completion_tokens": 50,
-    "total_tokens": 65
+    "prompt_tokens": 120,
+    "completion_tokens": 45,
+    "total_tokens": 165
   }
 }
 ```
 
 | Field | Meaning |
-|-------|---------|
-| `prompt_tokens` | Tokens in your input (messages + system prompt) |
-| `completion_tokens` | Tokens in the AI's response |
-| `total_tokens` | Total consumed |
+| --- | --- |
+| `prompt_tokens` | System instructions, conversation history, and new input |
+| `completion_tokens` | Generated response |
+| `total_tokens` | Combined input and output usage |
 
-**Tips to reduce token usage:**
-- Shorter system prompts = fewer prompt tokens
-- Set `max_tokens` to cap response length
-- Remove old messages from multi-turn conversations
+Tokenization differs between languages and models, so word counts are only rough estimates.
 
-## Pro plan
+## Keep requests efficient
 
-Need higher limits? [Upgrade to Pro](https://llm.kiwi/pricing) for:
+- Keep system instructions specific and remove repetition.
+- Send only conversation history needed for the next answer.
+- Summarize older turns in long conversations.
+- Use `max_tokens` when the endpoint and selected model support it.
+- Cache deterministic results that are safe to reuse.
+- Avoid sending the same request repeatedly after a permanent error.
+- Limit concurrent requests in background jobs.
 
-- Higher rate limits
-- Priority access during peak times
-- Dedicated support
+## Request too large
 
-## Error codes related to limits
+An oversized request commonly returns a `400` error. Reduce one or more of:
 
-| Status | Meaning | What to do |
-|--------|---------|------------|
-| `429` | Rate limit exceeded | Wait and retry, or upgrade to Pro |
-| `400` | Request too large | Reduce input length or `max_tokens` |
+- The user input
+- Included documents
+- Conversation history
+- Requested maximum output
 
-## Best practices
+When processing a large document, split it at meaningful boundaries, process the sections, and then combine or summarize the results.
 
-1. **Cache responses** — if you're asking the same question repeatedly, save the result
-2. **Use `max_tokens`** — cap response length to what you actually need
-3. **Implement backoff** — don't retry immediately after a `429`; wait and try again
-4. **Monitor usage** — check the `usage` field in responses to track consumption
-5. **Batch when possible** — combine multiple small requests into one if applicable
+## Design for changing capacity
 
-<Note>
-  Rate limits may change as LLM.kiwi scales. Check back for updates.
-</Note>
+For production-like prototypes:
+
+- Set a connection and response timeout.
+- Handle `429`, `500`, and `503` as temporary failures.
+- Queue background work instead of starting unlimited parallel requests.
+- Track success rate and latency without logging private content or API keys.
+- Provide a fallback message when the service is unavailable.
+
+<CardGroup cols={2}>
+  <Card title="Error reference" icon="triangle-exclamation" href="/errors">
+    Decide which failures can be retried.
+  </Card>
+
+  <Card title="Best practices" icon="shield" href="/best-practices">
+    Secure and stabilize your integration.
+  </Card>
+</CardGroup>

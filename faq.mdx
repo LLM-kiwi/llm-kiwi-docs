@@ -1,68 +1,72 @@
 ---
-title: "LLM.kiwi FAQ: pricing, models, limits, and setup"
-description: "Answers to common LLM.kiwi questions about the free plan, supported models, rate limits, OpenAI compatibility, API keys, privacy, and account setup."
+title: "Frequently asked questions"
 sidebarTitle: "FAQ"
-icon: "question-circle"
+description: "Short answers to common LLM.kiwi account, key, model, security, and integration questions."
+icon: "circle-question"
 ---
 
-## General
+<AccordionGroup>
+  <Accordion title="Is LLM.kiwi really free?">
+    LLM.kiwi is currently free and does not require a credit card. Free access is still subject to capacity, rate limits, and fair use. See [Limits and pricing](/limits).
+  </Accordion>
 
-### Is LLM.kiwi really free?
+  <Accordion title="Do I need to download or host a model?">
+    No. Your application sends HTTPS requests to the hosted LLM.kiwi API. You do not need a GPU, Docker, or a model server.
+  </Accordion>
 
-Yes. No credit card, no trial period. Create API keys and make requests immediately.
+  <Accordion title="How do I get an API key?">
+    Sign in at [llm.kiwi/login](https://llm.kiwi/login), open the [dashboard](https://llm.kiwi/dashboard), and create a key. Copy it when shown and store it safely.
+  </Accordion>
 
-### Do I need to install anything?
+  <Accordion title="What is the base URL?">
+    Use `https://api.llm.kiwi/v1`. In an SDK, set this as the base URL. In direct HTTP, append an endpoint such as `/chat/completions`.
+  </Accordion>
 
-Not for cURL. For Python or JavaScript, install the OpenAI SDK: `pip install openai` or `npm install openai`.
+  <Accordion title="Which model should I choose?">
+    Start with `auto` for general use. Test `hrllm` when Croatian-language quality is your main requirement. Query `GET /v1/models` for current availability.
+  </Accordion>
 
-### Do I need an AI background?
+  <Accordion title="Is the API OpenAI-compatible?">
+    LLM.kiwi supports the OpenAI-compatible chat completions patterns documented here. Set the custom base URL in a compatible client. Features not listed in the LLM.kiwi [API reference](/api-reference) should not be assumed to work.
+  </Accordion>
 
-Not at all. If you can send an HTTP request, you can use LLM.kiwi.
+  <Accordion title="Can I use it from React or browser JavaScript?">
+    Your frontend can use an AI feature, but it should call your backend. The backend holds the API key and calls LLM.kiwi. Never embed a private key in code sent to the browser.
+  </Accordion>
 
-### What's the catch?
+  <Accordion title="Can I use it from a mobile app?">
+    Use your own backend for the same reason as a browser app: secrets packaged with a mobile application can be extracted.
+  </Accordion>
 
-No catch. Free for learning, prototyping, and small-scale projects.
+  <Accordion title="Does the API remember conversations?">
+    No. Include the relevant system, user, and assistant messages with each request. Your application decides what history to store and resend.
+  </Accordion>
 
-## API keys
+  <Accordion title="Why does the same prompt produce different answers?">
+    Language-model output can vary because of sampling and model routing. If consistency matters, make instructions precise, test model parameters supported by the endpoint, and validate the output.
+  </Accordion>
 
-### How do I get an API key?
+  <Accordion title="Can I require JSON output?">
+    You can request JSON, but your code must still parse and validate it. Define a schema, reject invalid fields, and provide a fallback when parsing fails.
+  </Accordion>
 
-Sign in at [llm.kiwi/login](https://llm.kiwi/login) with Google or GitHub, then go to the [dashboard](https://llm.kiwi/dashboard) and click **Create Key**.
+  <Accordion title="What should I do if a key leaks?">
+    Revoke it immediately in the dashboard, create a replacement, update the application's secret, and remove the exposed value from code and logs. Deleting only the latest Git commit may not remove it from history.
+  </Accordion>
 
-### What if someone steals my key?
+  <Accordion title="Why am I receiving a 401 error?">
+    The key is missing, malformed, invalid, or revoked. Verify `Authorization: Bearer sk_kiwi_...` and confirm that the environment variable is available to the running process.
+  </Accordion>
 
-Revoke it immediately in the [dashboard](https://llm.kiwi/dashboard) and create a new one.
+  <Accordion title="Why am I receiving a 429 error?">
+    A request or capacity limit was reached. Wait, reduce request frequency or concurrency, and retry a limited number of times with exponential backoff.
+  </Accordion>
 
-### Can I have multiple keys?
+  <Accordion title="Can I use LLM.kiwi in production?">
+    Evaluate it against your reliability, privacy, capacity, and support requirements. At minimum, keep keys server-side, set timeouts, handle failures, validate model output, and provide a fallback. See [Best practices](/best-practices).
+  </Accordion>
 
-Yes. Use separate keys for development, staging, and production.
-
-## Technical
-
-### Why am I getting a 401 error?
-
-Missing or invalid API key. Check the header format: `Authorization: Bearer sk_kiwi_...`
-
-### Why am I getting a 429 error?
-
-Rate limit exceeded. Wait a few seconds and retry.
-
-### Can I stream responses?
-
-Yes. Set `"stream": true`. See [Code Examples](/examples) for implementations.
-
-### Is there a web interface?
-
-Yes — visit [chat.llm.kiwi](https://chat.llm.kiwi).
-
-## Still have questions?
-
-<CardGroup>
-  <Card title="Email support" icon="envelope" href="mailto:support@llm.kiwi">
-    We respond within 24 hours.
-  </Card>
-
-  <Card title="Troubleshooting" icon="wrench" href="/troubleshooting">
-    Common errors and fixes.
-  </Card>
-</CardGroup>
+  <Accordion title="Where can I get help?">
+    Follow [Troubleshooting](/troubleshooting) first. If the problem remains, email [support@llm.kiwi](mailto:support@llm.kiwi) with the status code, approximate time, SDK version, and a minimal redacted request. Never send a full API key.
+  </Accordion>
+</AccordionGroup>

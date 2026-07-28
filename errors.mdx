@@ -1,78 +1,146 @@
 ---
-title: "API error reference: codes, causes, and fixes"
-description: "Complete reference for LLM.kiwi API errors, including HTTP status codes, error types, JSON response format, common causes, and how to resolve each."
-sidebarTitle: "Error Reference"
+title: "Error reference"
+sidebarTitle: "Error reference"
+description: "Understand API failures, safe retries, and fixes for each HTTP status."
 icon: "triangle-exclamation"
 ---
 
-All errors return a JSON response with an `error` object.
-
-## Error format
+Check the HTTP status first, then inspect the response error object for detail.
 
 ```json
 {
   "error": {
-    "message": "Description of what went wrong",
-    "type": "error_category",
-    "code": "error_code"
+    "message": "Invalid API key",
+    "type": "invalid_request_error",
+    "code": "invalid_api_key"
   }
 }
 ```
 
-## 400 — Bad Request
+<Note>
+  Error messages can change. Use the HTTP status and a stable `code` when available, while keeping a fallback for unknown errors.
+</Note>
 
-| Code | Cause | Fix |
+## Status overview
+
+| Status | Meaning | Retry unchanged? |
 | --- | --- | --- |
-| Missing model | No `model` field | Add `"model": "auto"` |
-| Missing messages | No `messages` array | Add a `messages` array |
-| Invalid model | Unknown model name | Use `"auto"` or `"hrllm"` |
-| Invalid role | Bad role value | Use `"system"`, `"user"`, or `"assistant"` |
+| `400` | Invalid request | No |
+| `401` | Authentication failed | No |
+| `403` | Access denied | No |
+| `404` | Endpoint or model not found | No |
+| `408` | Request timed out | Sometimes |
+| `413` | Request is too large | No |
+| `429` | Rate limit reached | Yes, after waiting |
+| `500` | Internal server failure | Yes, limited |
+| `502` | Upstream response failure | Yes, limited |
+| `503` | Service temporarily unavailable | Yes, limited |
+| `504` | Upstream timeout | Yes, limited |
 
-## 401 — Unauthorized
+## 400: bad request
 
-| Code | Cause | Fix |
-| --- | --- | --- |
-| `invalid_api_key` | Wrong key | Check key in [dashboard](https://llm.kiwi/dashboard) |
-| `missing_api_key` | No auth header | Add `Authorization: Bearer sk_kiwi_...` |
+The API understood the HTTP request but rejected its data.
 
-## 429 — Rate Limited
+Check:
 
-| Cause | Fix |
-| --- | --- |
-| Too many requests | Wait and retry with backoff |
+- The body is valid JSON.
+- `Content-Type` is `application/json`.
+- `model` is present and supported.
+- `messages` is a non-empty array.
+- Every message has a supported `role` and string `content`.
+- Numeric options are within supported ranges.
 
-**Retry with exponential backoff:**
+Do not retry the same body. Correct it first.
 
-```python
-import time
-from openai import RateLimitError
+## 401: unauthorized
 
-def make_request(client, messages, max_retries=5):
-    for attempt in range(max_retries):
-        try:
-            return client.chat.completions.create(model="auto", messages=messages)
-        except RateLimitError:
-            if attempt == max_retries - 1:
-                raise
-            time.sleep(2 ** attempt)
+The API key is missing, malformed, invalid, or revoked.
+
+```http
+Authorization: Bearer sk_kiwi_...
 ```
 
-## 500 — Server Error
+Verify the environment variable and `Bearer ` prefix. Do not print the key while debugging. Create a new key if the existing key cannot be recovered or may have leaked.
 
-Temporary issue on our end. Retry after a few seconds.
+## 403: forbidden
 
-## Debugging checklist
+Authentication succeeded, but the request is not allowed. Check account state, key access, or requested capability. Repeating the request unchanged will not fix it.
 
-1. Is your key correct? — `curl "https://api.llm.kiwi/v1/models" -H "Authorization: Bearer sk_kiwi_..."`
-2. Is your JSON valid? — Use jsonlint.com
-3. Is your base URL correct? — Must be `https://api.llm.kiwi/v1`
+## 404: not found
 
-<CardGroup>
-  <Card title="Troubleshooting" icon="wrench" href="/troubleshooting">
-    Step-by-step solutions.
+Check for:
+
+- Incorrect hostname
+- Missing or duplicated `/v1`
+- Misspelled endpoint
+- Model ID that is not returned by `GET /v1/models`
+
+## 408 or client timeout
+
+The request did not finish within a time limit. It may be safe to retry a read-like AI request, but your application should still prevent duplicate downstream actions based on multiple responses.
+
+## 413: payload too large
+
+Shorten the input, remove old conversation turns, split documents, or request less output. Retrying the same payload will fail again.
+
+## 429: too many requests
+
+The current request rate or capacity exceeded a limit.
+
+1. Respect a `Retry-After` header when present.
+2. Otherwise wait using exponential backoff with jitter.
+3. Reduce concurrency.
+4. Stop after a limited number of attempts.
+
+Do not rotate through keys to evade rate limits.
+
+## 500, 502, 503, and 504
+
+These usually represent temporary service or upstream model failures. Retry a limited number of times with backoff. If failures continue, show a temporary-unavailable message and allow the user to try later.
+
+## Unknown errors
+
+Applications must have a safe fallback:
+
+- Preserve the HTTP status and request ID for diagnostics.
+- Show a user-friendly message without exposing internal details.
+- Avoid revealing prompts, stack traces, or keys.
+- Do not treat an unknown response as a successful model output.
+
+## Python example
+
+```python
+from openai import (
+    APIConnectionError,
+    APIStatusError,
+    APITimeoutError,
+    RateLimitError,
+)
+
+try:
+    response = client.chat.completions.create(
+        model="auto",
+        messages=[{"role": "user", "content": "Hello"}],
+        timeout=30,
+    )
+except RateLimitError:
+    print("Too many requests. Please try again shortly.")
+except APITimeoutError:
+    print("The request took too long. Please try again.")
+except APIConnectionError:
+    print("Could not reach LLM.kiwi.")
+except APIStatusError as error:
+    print(f"API error {error.status_code}")
+```
+
+This example classifies failures. Add bounded backoff around the temporary cases for a production integration.
+
+<CardGroup cols={2}>
+  <Card title="Troubleshooting steps" icon="wrench" href="/troubleshooting">
+    Diagnose the root cause interactively.
   </Card>
 
-  <Card title="Contact support" icon="envelope" href="mailto:support@llm.kiwi">
-    Email us with error details.
+  <Card title="Limits and backoff" icon="gauge" href="/limits">
+    Implement respectful retry behavior.
   </Card>
 </CardGroup>

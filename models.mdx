@@ -1,140 +1,115 @@
 ---
-title: "LLM.kiwi models: auto and hrllm compared"
-description: "Compare the LLM.kiwi models `auto` and `hrllm`: context windows, strengths, latency, and guidance on which model to pick for each use case."
+title: "Models"
+sidebarTitle: "Models"
+description: "Choose between automatic routing and the Croatian-focused model."
+icon: "brain"
 ---
 
-LLM.kiwi offers two models. In most cases, you should use `auto`.
+Start with `auto` unless Croatian-focused generation is the main requirement for your application.
 
-## Model overview
+## At a glance
 
-<Tabs>
-  <Tab title="auto">
-    **Recommended for most use cases.**
-
-    `auto` automatically routes your request to the best available model. As new models are added, your integration stays current without any code changes.
-
-    ```json
-    { "model": "auto" }
-    ```
-
-    **When to use it:**
-    - General-purpose chat and Q&A
-    - Prototyping and testing
-    - Any situation where you want the best available model
-    - You don't need a specific model behavior
-    - English and multi-language tasks
-
-    **What happens under the hood:**
-    When you send `model: "auto"`, the LLM.kiwi gateway selects the current best model based on availability, performance, and your request type. The underlying model might change over time — but your code stays the same.
-
-    **You can check which model was used** by looking at the `model` field in the response:
-
-    ```json
-    {
-      "model": "auto",
-      "choices": [...]
-    }
-    ```
-  </Tab>
-
-  <Tab title="hrllm">
-    **Dedicated Croatian-language model.**
-
-    `hrllm` is optimized specifically for Croatian text generation. Pin this when your application requires consistent Croatian output.
-
-    ```json
-    { "model": "hrllm" }
-    ```
-
-    **When to use it:**
-    - Croatian-language chatbots
-    - Translating to/from Croatian
-    - Generating Croatian text content
-    - Any workflow where Croatian language is required
-
-    **When NOT to use it:**
-    - English-only applications (use `auto` instead)
-    - When you're unsure (use `auto` instead)
-
-    **Example request:**
-
-    ```bash
-    curl -X POST "https://api.llm.kiwi/v1/chat/completions" \
-      -H "Authorization: Bearer sk_kiwi_..." \
-      -H "Content-Type: application/json" \
-      -d '{
-        "model": "hrllm",
-        "messages": [{"role": "user", "content": "Objasni kvantno računarstvo"}]
-      }'
-    ```
-  </Tab>
-</Tabs>
-
-## Comparison
-
-| Feature | `auto` | `hrllm` |
-|---------|--------|---------|
-| Languages | All | Croatian-focused |
-| Model selection | Automatic | Fixed |
-| Updates automatically | Yes | No |
-| Best for | General use | Croatian-specific tasks |
-| Default choice | Yes | Only when you need Croatian |
-
-## How `auto` routing works
-
-1. You send a request with `model: "auto"`
-2. The gateway evaluates available models
-3. The best match is selected based on your request
-4. The response is returned with the actual model name in the `model` field
-
-You don't need to do anything — it just works.
-
-## Usage examples
-
-**English (use `auto`):**
-
-```bash
-curl -X POST "https://api.llm.kiwi/v1/chat/completions" \
-  -H "Authorization: Bearer sk_kiwi_..." \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "auto",
-    "messages": [{"role": "user", "content": "Explain quantum computing in simple terms"}]
-  }'
-```
-
-**Croatian (use `hrllm`):**
-
-```bash
-curl -X POST "https://api.llm.kiwi/v1/chat/completions" \
-  -H "Authorization: Bearer sk_kiwi_..." \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "hrllm",
-    "messages": [{"role": "user", "content": "Objasni kvantno računarstvo jednostavnim riječima"}]
-  }'
-```
+| Model | Best for | Choose it when |
+| --- | --- | --- |
+| `auto` | General chat, Q&A, coding, prototyping, and multilingual tasks | You want the recommended default |
+| `hrllm` | Croatian-language writing and conversations | Croatian output quality is the main requirement |
 
 <Note>
-  If you're unsure which model to use, start with `auto`. You can always switch to `hrllm` later — just change one line in your request.
+  Model availability and routing can change. For the models available to your account at runtime, call `GET /v1/models`.
 </Note>
 
-## Which model should I use?
+## Use `auto` by default
+
+`auto` lets the LLM.kiwi gateway choose an available model without requiring you to change your integration.
+
+```json
+{
+  "model": "auto",
+  "messages": [
+    { "role": "user", "content": "Explain APIs in simple language." }
+  ]
+}
+```
+
+Use it for:
+
+- General-purpose assistants
+- Questions and summarization
+- Coding and technical tasks
+- Multilingual applications
+- Prototypes and first integrations
+
+Because routing may evolve, test important application behavior rather than depending on the identity of an underlying model.
+
+## Use `hrllm` for Croatian
+
+`hrllm` is intended for Croatian-language generation.
+
+```json
+{
+  "model": "hrllm",
+  "messages": [
+    { "role": "user", "content": "Objasni što je API jednostavnim riječima." }
+  ]
+}
+```
+
+Good candidates include:
+
+- Croatian customer-support assistants
+- Croatian article drafts and rewriting
+- Croatian-language internal tools
+- Translation involving Croatian
+
+For English-only or general tasks, begin with `auto` and compare outputs before switching.
+
+## List models programmatically
+
+```bash
+curl "https://api.llm.kiwi/v1/models" \
+  -H "Authorization: Bearer sk_kiwi_..."
+```
+
+A typical OpenAI-compatible response contains a `data` array:
+
+```json
+{
+  "object": "list",
+  "data": [
+    { "id": "auto", "object": "model" },
+    { "id": "hrllm", "object": "model" }
+  ]
+}
+```
+
+Use the model `id` exactly as returned by the API.
+
+## Make the choice
 
 <AccordionGroup>
-  <Accordion title="I just want the AI to work → auto">
-    Use `auto`. It picks the best model for you and updates automatically as new models are added.
+  <Accordion title="I am completely new">
+    Use `auto`. It is the simplest starting point and is used throughout the quickstart.
   </Accordion>
 
-  <Accordion title="I need Croatian text → hrllm">
-    Use `hrllm`. It's specifically optimized for Croatian language tasks.
+  <Accordion title="My application must answer in Croatian">
+    Test `hrllm` and `auto` with real examples from your application, then keep the option that produces more reliable results.
   </Accordion>
 
-  <Accordion title="I'm building a production app → auto">
-    Use `auto`. As models improve, your app benefits automatically without code changes.
+  <Accordion title="I am building a production application">
+    Avoid assuming that `auto` always maps to the same underlying model. Validate structured outputs, set timeouts, and handle temporary errors.
   </Accordion>
 
-  <Accordion title="I want to compare models → try both">
-    Send the same request with both `auto` and `hrllm` and compare the results.
+  <Accordion title="I want to compare them fairly">
+    Send the same system instruction and user message to both choices. Compare correctness, language quality, response time, and consistency across several realistic inputs.
   </Accordion>
 </AccordionGroup>
+
+<CardGroup cols={2}>
+  <Card title="Working examples" icon="code" href="/examples">
+    Copy examples for Python, JavaScript, cURL, and streaming.
+  </Card>
+
+  <Card title="Limits and pricing" icon="gauge" href="/limits">
+    Understand free usage and rate limits.
+  </Card>
+</CardGroup>

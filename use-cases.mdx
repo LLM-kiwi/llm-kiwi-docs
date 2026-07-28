@@ -1,238 +1,161 @@
 ---
-title: "Use cases: what you can build with LLM.kiwi"
-description: "Real-world projects to build with the free LLM.kiwi API: chatbots, summarizers, classifiers, content generators, coding assistants, and data extractors."
+title: "Use cases"
+sidebarTitle: "Use cases"
+description: "Practical patterns for chat, summarization, extraction, translation, and content tools."
+icon: "wand-magic-sparkles"
 ---
 
-LLM.kiwi gives you a free, OpenAI-compatible API. Here are practical things you can build — with code to get you started.
+LLM.kiwi can power server-side features that turn messages into generated text. Begin with a narrow task, test realistic inputs, and validate every result your application depends on.
 
-## Chatbots
+<CardGroup cols={2}>
+  <Card title="Conversational assistants" icon="comments">
+    Maintain relevant message history and provide a focused system instruction.
+  </Card>
 
-Build a conversational bot for your website, app, or Discord server.
+  <Card title="Summarization" icon="compress">
+    Convert long text into short bullets, action items, or structured notes.
+  </Card>
 
-<CodeGroup>
-```python Python
-import openai
+  <Card title="Croatian content" icon="language">
+    Draft, rewrite, classify, or translate Croatian text with `hrllm`.
+  </Card>
 
-client = openai.OpenAI(
-    base_url="https://api.llm.kiwi/v1",
-    api_key="sk_kiwi_...",
-)
+  <Card title="Data extraction" icon="table">
+    Ask for structured fields, then validate the returned format in code.
+  </Card>
+</CardGroup>
 
-# Keep conversation history
-messages = [
-    {"role": "system", "content": "You are a friendly customer support bot for a coffee shop."},
-]
-
-def chat(user_input):
-    messages.append({"role": "user", "content": user_input})
-    response = client.chat.completions.create(
-        model="auto",
-        messages=messages,
-    )
-    reply = response.choices[0].message.content
-    messages.append({"role": "assistant", "content": reply})
-    return reply
-
-# Test it
-print(chat("What are your hours?"))
-print(chat("Do you have oat milk?"))
-```
-
-```javascript JavaScript
-import OpenAI from "openai";
-
-const client = new OpenAI({
-    baseURL: "https://api.llm.kiwi/v1",
-    apiKey: "sk_kiwi_...",
-});
-
-const messages = [
-    { role: "system", content: "You are a friendly customer support bot for a coffee shop." },
-];
-
-async function chat(userInput) {
-    messages.push({ role: "user", content: userInput });
-    const response = await client.chat.completions.create({
-        model: "auto",
-        messages,
-    });
-    const reply = response.choices[0].message.content;
-    messages.push({ role: "assistant", content: reply });
-    return reply;
-}
-
-console.log(await chat("What are your hours?"));
-```
-</CodeGroup>
-
-## Content generation
-
-Generate blog posts, product descriptions, social media captions, or emails.
+## Customer-support assistant
 
 ```python
-import openai
+messages = [
+    {
+        "role": "system",
+        "content": (
+            "You assist customers using only the policy below. "
+            "If the answer is not in the policy, say you do not know.\n\n"
+            "Policy: Returns are accepted within 30 days for unused items."
+        ),
+    },
+    {"role": "user", "content": "Can I return an unused item after 14 days?"},
+]
 
-client = openai.OpenAI(
-    base_url="https://api.llm.kiwi/v1",
-    api_key="sk_kiwi_...",
-)
+response = client.chat.completions.create(model="auto", messages=messages)
+print(response.choices[0].message.content)
+```
+
+Keep business rules in your own application as well. A model response should not be the only enforcement mechanism for refunds, payments, permissions, or other important actions.
+
+## Summarize text
+
+```python
+notes = """
+The team agreed to launch on Friday. Ana will test checkout on Wednesday.
+Marko will prepare the release notes. The remaining blocker is the email template.
+"""
 
 response = client.chat.completions.create(
     model="auto",
     messages=[
-        {"role": "system", "content": "You are a marketing copywriter. Write concise, engaging product descriptions."},
-        {"role": "user", "content": "Write a product description for wireless noise-cancelling headphones. Max 50 words."},
+        {
+            "role": "system",
+            "content": "Return a concise summary followed by a bullet list of owners and tasks.",
+        },
+        {"role": "user", "content": notes},
     ],
 )
-print(response.choices[0].message.content)
 ```
 
-## Translation
+For long documents, stay within the model's context limit and split content into meaningful sections when needed.
 
-Translate text between languages, including Croatian with the `hrllm` model.
+## Generate Croatian text
 
 ```python
-import openai
-
-client = openai.OpenAI(
-    base_url="https://api.llm.kiwi/v1",
-    api_key="sk_kiwi_...",
-)
-
-# English to Croatian
 response = client.chat.completions.create(
     model="hrllm",
     messages=[
-        {"role": "system", "content": "Translate the user's text to Croatian. Output only the translation."},
-        {"role": "user", "content": "How are you today?"},
+        {
+            "role": "system",
+            "content": "Piši prirodnim hrvatskim jezikom, jasno i bez marketinških fraza.",
+        },
+        {
+            "role": "user",
+            "content": "Preoblikuj ovu obavijest u profesionalan email: Paket kasni jedan dan.",
+        },
     ],
 )
-print(response.choices[0].message.content)
 ```
 
-## Code assistance
+Review generated content before publishing it, especially names, prices, dates, legal statements, and factual claims.
 
-Get help writing, debugging, or explaining code.
-
-```python
-import openai
-
-client = openai.OpenAI(
-    base_url="https://api.llm.kiwi/v1",
-    api_key="sk_kiwi_...",
-)
-
-response = client.chat.completions.create(
-    model="auto",
-    messages=[
-        {"role": "system", "content": "You are a senior software engineer. Explain code clearly and concisely."},
-        {"role": "user", "content": "Write a Python function that checks if a string is a palindrome."},
-    ],
-)
-print(response.choices[0].message.content)
-```
-
-## Summarization
-
-Summarize long articles, meeting notes, or documents.
+## Extract structured data
 
 ```python
-import openai
-
-client = openai.OpenAI(
-    base_url="https://api.llm.kiwi/v1",
-    api_key="sk_kiwi_...",
-)
-
-long_text = """
-[Paste a long article, meeting transcript, or document here]
-"""
-
-response = client.chat.completions.create(
-    model="auto",
-    messages=[
-        {"role": "system", "content": "Summarize the following text in 3 bullet points. Be concise."},
-        {"role": "user", "content": long_text},
-    ],
-)
-print(response.choices[0].message.content)
-```
-
-## Data extraction
-
-Pull structured data from unstructured text.
-
-```python
-import openai
 import json
 
-client = openai.OpenAI(
-    base_url="https://api.llm.kiwi/v1",
-    api_key="sk_kiwi_...",
-)
-
 response = client.chat.completions.create(
     model="auto",
     messages=[
-        {"role": "system", "content": "Extract the name, email, and phone number from the text. Return valid JSON only."},
-        {"role": "user", "content": "Hi, I'm John Smith. You can reach me at john@example.com or call 555-123-4567."},
+        {
+            "role": "system",
+            "content": (
+                "Extract name and email. Return only JSON matching "
+                '{"name": string | null, "email": string | null}.'
+            ),
+        },
+        {
+            "role": "user",
+            "content": "Contact Ana Horvat at ana@example.com.",
+        },
     ],
 )
-print(response.choices[0].message.content)
+
+raw = response.choices[0].message.content
+try:
+    result = json.loads(raw)
+except json.JSONDecodeError:
+    result = {"name": None, "email": None}
 ```
 
-## Q&A over documents
+A prompt asking for JSON does not guarantee valid JSON. Parse it, validate required fields and types, and define a fallback.
 
-Answer questions based on your own content. Feed the document as context and ask a question.
+## Classify text
 
 ```python
-import openai
-
-client = openai.OpenAI(
-    base_url="https://api.llm.kiwi/v1",
-    api_key="sk_kiwi_...",
-)
-
-document = """
-Our return policy allows returns within 30 days of purchase.
-Items must be unused and in original packaging.
-Refunds are processed within 5-7 business days.
-"""
-
 response = client.chat.completions.create(
     model="auto",
     messages=[
-        {"role": "system", "content": "Answer the user's question using ONLY the provided document. If the answer isn't in the document, say so."},
-        {"role": "user", "content": f"Document:\n{document}\n\nQuestion: How many days do I have to return an item?"},
+        {
+            "role": "system",
+            "content": "Classify the message as billing, technical, or other. Output one label only.",
+        },
+        {"role": "user", "content": "My API request returns 401."},
     ],
 )
-print(response.choices[0].message.content)
+
+label = response.choices[0].message.content.strip().lower()
+allowed = {"billing", "technical", "other"}
+if label not in allowed:
+    label = "other"
 ```
 
-## Streaming responses
+## Production checklist
 
-For real-time UIs, stream tokens as they're generated instead of waiting for the full response.
+- Call LLM.kiwi from your backend, not directly from a browser.
+- Keep keys in environment variables and rotate leaked keys.
+- Set request timeouts and handle API errors.
+- Retry only temporary failures, with exponential backoff.
+- Limit user input and conversation history.
+- Validate structured output before using it.
+- Log request IDs and failures without logging secrets.
+- Add human review for high-impact actions or published content.
 
-```python
-import openai
+<CardGroup cols={2}>
+  <Card title="Best practices" icon="shield" href="/best-practices">
+    Prepare an integration for real users.
+  </Card>
 
-client = openai.OpenAI(
-    base_url="https://api.llm.kiwi/v1",
-    api_key="sk_kiwi_...",
-)
-
-stream = client.chat.completions.create(
-    model="auto",
-    messages=[{"role": "user", "content": "Write a short poem about the ocean."}],
-    stream=True,
-)
-
-for chunk in stream:
-    if chunk.choices[0].delta.content:
-        print(chunk.choices[0].delta.content, end="", flush=True)
-print()  # newline
-```
-
-<Tip>
-  All examples use the OpenAI Python SDK. You can do the same with the JavaScript SDK, cURL, or any HTTP client. See [Code Examples](/examples) for more languages.
-</Tip>
+  <Card title="Code examples" icon="code" href="/examples">
+    Copy complete language-specific examples.
+  </Card>
+</CardGroup>

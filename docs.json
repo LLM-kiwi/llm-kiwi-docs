@@ -1,8 +1,8 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "LLM.kiwi free API docs and how to use",
-  "description": "Free AI API — OpenAI-compatible chat completions. No credit card required. Get started in minutes.",
+  "name": "LLM.kiwi documentation",
+  "description": "Beginner-friendly documentation for the free OpenAI-compatible LLM.kiwi API, with secure setup, working examples, reference material, and troubleshooting.",
   "colors": {
     "primary": "#16A34A",
     "light": "#07C983",
@@ -21,46 +21,56 @@
       "dark": "#15803D"
     }
   },
-  "navigation": [
-    {
-      "group": "Getting Started",
-      "icon": "rocket",
-      "pages": [
-        "index",
-        "quickstart",
-        "concepts",
-        "glossary"
-      ]
-    },
-    {
-      "group": "Guides & Examples",
-      "icon": "book-open",
-      "pages": [
-        "best-practices",
-        "use-cases",
-        "examples",
-        "sdks"
-      ]
-    },
-    {
-      "group": "Reference",
-      "icon": "code",
-      "pages": [
-        "models",
-        "limits",
-        "api-reference",
-        "errors"
-      ]
-    },
-    {
-      "group": "Support",
-      "icon": "circle-question",
-      "pages": [
-        "faq",
-        "troubleshooting"
-      ]
-    }
-  ],
+  "navigation": {
+    "products": [
+      {
+        "product": "LLM.kiwi docs",
+        "icon": "book-open",
+        "description": "Free OpenAI-compatible API documentation",
+        "groups": [
+          {
+            "group": "Build with LLM.kiwi",
+            "icon": "code",
+            "pages": [
+              "models",
+              "examples",
+              "sdks",
+              "use-cases",
+              "best-practices"
+            ]
+          },
+          {
+            "group": "API reference",
+            "icon": "brackets-curly",
+            "pages": [
+              "api-reference",
+              "limits",
+              "errors"
+            ]
+          },
+          {
+            "group": "Get started",
+            "icon": "rocket",
+            "expanded": true,
+            "pages": [
+              "index",
+              "quickstart",
+              "concepts"
+            ]
+          },
+          {
+            "group": "Help and resources",
+            "icon": "life-ring",
+            "pages": [
+              "troubleshooting",
+              "glossary",
+              "faq"
+            ]
+          }
+        ]
+      }
+    ]
+  },
   "logo": {
     "light": "/logo/light.svg",
     "dark": "/logo/dark.svg"

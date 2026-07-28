@@ -1,131 +1,146 @@
 ---
-title: "Best practices for the LLM.kiwi API"
-description: "Prompt engineering, retries, streaming, caching, and cost tips for building fast, reliable applications on the LLM.kiwi chat completions API."
-sidebarTitle: "Best Practices"
-icon: "star"
+title: "Best practices"
+sidebarTitle: "Best practices"
+description: "Secure API keys, handle failures, validate output, and prepare an integration for users."
+icon: "shield-halved"
 ---
 
-This page covers patterns and practices that will help you build better, more reliable applications with LLM.kiwi.
+Use this checklist after the quickstart and before other people depend on your integration.
 
-## Prompt engineering
+## Keep API keys private
 
-The way you write your prompts has a huge impact on response quality.
-
-### Be specific
-
-Instead of:
-
-<Note>
-  Too vague
-</Note>
-
-```json
-{"role": "user", "content": "Tell me about cats."}
-```
-
-Do this:
-
-<Tip>
-  Specific and clear
-</Tip>
-
-```json
-{"role": "user", "content": "List 5 interesting facts about domestic cats, each with a one-sentence explanation."}
-```
-
-### Use system messages effectively
-
-<AccordionGroup>
-  <Accordion title="Role-playing">
-    ```json
-    {"role": "system", "content": "You are a senior software engineer. Explain concepts clearly with code examples."}
-    ```
-  </Accordion>
-
-  <Accordion title="Format control">
-    ```json
-    {"role": "system", "content": "Respond only with valid JSON. No markdown, no explanations."}
-    ```
-  </Accordion>
-
-  <Accordion title="Tone setting">
-    ```json
-    {"role": "system", "content": "You are a friendly teacher explaining to a beginner. Use simple words and analogies."}
-    ```
-  </Accordion>
-
-  <Accordion title="Constraint setting">
-    ```json
-    {"role": "system", "content": "Answer in 3 sentences or less. Be concise."}
-    ```
-  </Accordion>
-</AccordionGroup>
-
-## Error handling
-
-```python
-import openai
-from openai import RateLimitError, APIError, APIConnectionError
-import time
-
-client = openai.OpenAI(
-    base_url="https://api.llm.kiwi/v1",
-    api_key="sk_kiwi_...",
-)
-
-def safe_chat_completion(messages, max_retries=3):
-    for attempt in range(max_retries):
-        try:
-            return client.chat.completions.create(
-                model="auto",
-                messages=messages,
-                timeout=30,
-            )
-        except RateLimitError:
-            if attempt < max_retries - 1:
-                time.sleep(2 ** attempt)
-            else:
-                raise
-        except APIConnectionError:
-            if attempt < max_retries - 1:
-                time.sleep(1)
-            else:
-                raise
-        except APIError as e:
-            print(f"API error: {e}")
-            raise
-```
-
-## Token optimization
-
-<Tip>
-  1 token ≈ 0.75 words in English. A 10-word sentence is roughly 13 tokens.
-</Tip>
-
-**Reduce prompt tokens:** Keep system prompts short, remove old conversation history, use shorter variable names.
-
-**Control response length:** Set `max_tokens` to cap the response.
-
-## Security
+- Call LLM.kiwi from a backend, serverless function, worker, or trusted script.
+- Load the key from an environment variable or managed secret store.
+- Never commit a key to Git, paste it into an issue, or expose it in browser code.
+- Use separate keys for separate applications when practical.
+- Revoke a key immediately if it leaks.
 
 <Warning>
-  Never expose your API key in client-side code, browser apps, or public GitHub repos.
+  CORS settings, minification, or hiding a value in a frontend environment file do not make a browser-side API key secret. Users can inspect network requests and downloaded code.
 </Warning>
 
-**Do:** Store keys in environment variables, rotate keys periodically. **Don't:** Hardcode keys, commit them to git, share in logs.
+## Set timeouts
 
-## Next steps
+Every network request can stall. Set a finite timeout and show a useful message when it expires.
 
-<CardGroup>
-  <Card title="Error Reference" icon="triangle-exclamation" href="/errors">
-    Complete list of error codes and fixes.
+```python
+response = client.chat.completions.create(
+    model="auto",
+    messages=messages,
+    timeout=30,
+)
+```
+
+Choose a timeout appropriate for your interface. Interactive features usually need a shorter limit than background jobs.
+
+## Retry only temporary failures
+
+| Status or failure | Retry? | Behavior |
+| --- | --- | --- |
+| `400` invalid request | No | Fix the request |
+| `401` authentication | No | Check or replace the key |
+| `403` forbidden | No | Check access |
+| `404` not found | No | Check endpoint and model |
+| `429` rate limit | Yes | Back off and retry a limited number of times |
+| `500` / `503` | Yes | Retry with backoff |
+| Connection failure | Sometimes | Retry if the operation is safe |
+
+Use exponential backoff with jitter and a maximum attempt count. Do not run an infinite retry loop.
+
+## Validate model output
+
+Generated text can be wrong, incomplete, unsafe, or differently formatted than requested.
+
+- Parse JSON inside `try` / `catch` or equivalent.
+- Check allowed labels against an explicit list.
+- Validate required fields, types, ranges, and length.
+- Escape or sanitize content before rendering it as HTML.
+- Do not execute generated code or commands automatically.
+- Require human review for important decisions and public content.
+
+A model instruction such as “return JSON only” improves consistency but is not validation.
+
+## Keep prompts focused
+
+A good instruction states:
+
+1. The task
+2. Relevant context
+3. Constraints
+4. Desired output
+
+```text
+Classify the customer message as billing, technical, or other.
+Return one lowercase label only.
+Message: {{message}}
+```
+
+Keep user-controlled content clearly separated from system instructions. Do not rely on a prompt alone to enforce authorization or access rules.
+
+## Manage conversation history
+
+The API does not remember previous requests. Your application controls history.
+
+- Keep the system instruction at the beginning.
+- Include turns needed to understand the current request.
+- Remove irrelevant old turns.
+- Summarize long history when appropriate.
+- Avoid placing secrets or unnecessary personal data in messages.
+
+## Protect privacy
+
+Before sending content:
+
+- Collect only what the feature needs.
+- Avoid transmitting passwords, secret keys, payment details, or sensitive records.
+- Redact personal data when possible.
+- Define how long application logs and conversation history are retained.
+- Inform users when their input is processed by an AI service.
+
+Your application's legal and privacy obligations depend on its users, data, and jurisdiction.
+
+## Control cost and capacity
+
+Even when the API is free, capacity is limited.
+
+- Cap input size and output length.
+- Rate-limit users of your own application.
+- Cache safe, reusable results.
+- Limit parallel background jobs.
+- Cancel requests when the user abandons the operation, if your runtime supports it.
+- Track error rate and latency.
+
+## Log safely
+
+Useful diagnostic data includes:
+
+- Timestamp and duration
+- Endpoint and model value
+- HTTP status
+- Request ID when available
+- Attempt count
+
+Do not log full API keys. Avoid logging complete prompts and responses unless they are necessary, protected, and covered by your privacy policy.
+
+## Production readiness checklist
+
+- [ ] Key is stored server-side
+- [ ] Secrets are excluded from Git and logs
+- [ ] Request timeout is configured
+- [ ] Temporary failures use bounded backoff
+- [ ] Permanent failures are not retried
+- [ ] User input size is limited
+- [ ] Model output is validated
+- [ ] Important actions require deterministic checks or human review
+- [ ] Users receive understandable error messages
+- [ ] Monitoring does not expose private content
+
+<CardGroup cols={2}>
+  <Card title="Build a practical feature" icon="wand-magic-sparkles" href="/use-cases">
+    Apply these rules to common use cases.
   </Card>
 
-  <Card title="FAQ" icon="question-circle" href="/faq">
-    Frequently asked questions.
-  </Card>
-
-  <Card title="Code Examples" icon="code" href="/examples">
-    Working examples in multiple languages.
+  <Card title="Handle every error" icon="triangle-exclamation" href="/errors">
+    Add predictable error behavior.
   </Card>
 </CardGroup>

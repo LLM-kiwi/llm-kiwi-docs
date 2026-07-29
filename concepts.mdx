@@ -5,6 +5,67 @@ description: "Beginner-friendly explanations of core LLM.kiwi concepts: APIs, HT
 icon: "lightbulb"
 ---
 
+<style>
+  {`
+    .chat-assistant-floating-input,
+    chat-assistant-floating-input {
+    display: none !important;
+    }
+
+    #assistant-entry,
+    #assistant-entry-mobile {
+    position: fixed !important;
+    right: max(1rem, env(safe-area-inset-right)) !important;
+    bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+    z-index: 60 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 3rem !important;
+    min-width: 3rem !important;
+    height: 3rem !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    color: #fff !important;
+    background: #16a34a !important;
+    border: 1px solid rgb(255 255 255 / 20%) !important;
+    border-radius: 9999px !important;
+    box-shadow: 0 10px 25px rgb(15 23 42 / 18%), 0 2px 8px rgb(15 23 42 / 12%) !important;
+    }
+
+    #assistant-entry:hover,
+    #assistant-entry-mobile:hover {
+    background: #15803d !important;
+    }
+
+    #assistant-entry:focus-visible,
+    #assistant-entry-mobile:focus-visible {
+    outline: 3px solid rgb(22 163 74 / 35%) !important;
+    outline-offset: 3px !important;
+    }
+
+    #assistant-entry svg,
+    #assistant-entry-mobile svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    color: currentcolor !important;
+    }
+
+    @media (min-width: 768px) {
+    #assistant-entry-mobile { display: none !important; }
+    }
+
+    @media (max-width: 767px) {
+    #assistant-entry { display: none !important; }
+    }
+
+    @media print {
+    #assistant-entry,
+    #assistant-entry-mobile { display: none !important; }
+    }
+    `}
+</style>
+
 This guide explains the building blocks behind every LLM.kiwi request, with no previous API or AI knowledge required.
 
 <Info>
@@ -202,19 +263,19 @@ Your code should check the status, show a useful message, and retry only tempora
 ## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Make your first request" icon="rocket" href="/quickstart">
+  <Card title="Make your first request" href="/quickstart">
     Follow the complete beginner quickstart.
   </Card>
 
-  <Card title="Explore models" icon="brain" href="/models">
+  <Card title="Explore models" href="/models">
     Choose the best model for your task.
   </Card>
 
-  <Card title="Use a working example" icon="code" href="/examples">
+  <Card title="Use a working example" href="/examples">
     Copy complete Python, JavaScript, and cURL examples.
   </Card>
 
-  <Card title="Look up a term" icon="book" href="/glossary">
+  <Card title="Look up a term" href="/glossary">
     Use the plain-language glossary.
   </Card>
 </CardGroup>

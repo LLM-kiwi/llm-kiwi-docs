@@ -5,20 +5,81 @@ description: "Get started with LLM.kiwi, the free OpenAI-compatible chat complet
 icon: "house"
 ---
 
+<style>
+  {`
+    .chat-assistant-floating-input,
+    chat-assistant-floating-input {
+    display: none !important;
+    }
+
+    #assistant-entry,
+    #assistant-entry-mobile {
+    position: fixed !important;
+    right: max(1rem, env(safe-area-inset-right)) !important;
+    bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+    z-index: 60 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 3rem !important;
+    min-width: 3rem !important;
+    height: 3rem !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    color: #fff !important;
+    background: #16a34a !important;
+    border: 1px solid rgb(255 255 255 / 20%) !important;
+    border-radius: 9999px !important;
+    box-shadow: 0 10px 25px rgb(15 23 42 / 18%), 0 2px 8px rgb(15 23 42 / 12%) !important;
+    }
+
+    #assistant-entry:hover,
+    #assistant-entry-mobile:hover {
+    background: #15803d !important;
+    }
+
+    #assistant-entry:focus-visible,
+    #assistant-entry-mobile:focus-visible {
+    outline: 3px solid rgb(22 163 74 / 35%) !important;
+    outline-offset: 3px !important;
+    }
+
+    #assistant-entry svg,
+    #assistant-entry-mobile svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    color: currentcolor !important;
+    }
+
+    @media (min-width: 768px) {
+    #assistant-entry-mobile { display: none !important; }
+    }
+
+    @media (max-width: 767px) {
+    #assistant-entry { display: none !important; }
+    }
+
+    @media print {
+    #assistant-entry,
+    #assistant-entry-mobile { display: none !important; }
+    }
+    `}
+</style>
+
 # Build with LLM.kiwi
 
 Add AI chat and text generation to your application through a free OpenAI-compatible API. No credit card, local model, or GPU is required.
 
 <CardGroup cols={3}>
-  <Card title="Free access" icon="heart">
+  <Card title="Free access">
     Create an account and begin without a credit card.
   </Card>
 
-  <Card title="OpenAI-compatible" icon="plug">
+  <Card title="OpenAI-compatible">
     Use familiar chat completions clients with a custom base URL.
   </Card>
 
-  <Card title="Croatian support" icon="language">
+  <Card title="Croatian support">
     Select `hrllm` for Croatian-focused generation.
   </Card>
 </CardGroup>
@@ -40,7 +101,7 @@ Add AI chat and text generation to your application through a free OpenAI-compat
   </Step>
 </Steps>
 
-<Card title="New to APIs and AI?" icon="graduation-cap" href="/concepts">
+<Card title="New to APIs and AI?" href="/concepts">
   Read Core concepts for plain-English explanations of endpoints, headers, JSON, messages, models, tokens, responses, and errors.
 </Card>
 
@@ -67,19 +128,19 @@ A successful response contains the answer at `choices[0].message.content`.
 ## Choose what you need
 
 <CardGroup cols={2}>
-  <Card title="I want my first working call" icon="rocket" href="/quickstart">
+  <Card title="I want my first working call" href="/quickstart">
     Complete setup from account creation to expected output.
   </Card>
 
-  <Card title="I need working code" icon="code" href="/examples">
+  <Card title="I need working code" href="/examples">
     Copy server-side Python, Node.js, cURL, and streaming examples.
   </Card>
 
-  <Card title="I need endpoint details" icon="brackets-curly" href="/api-reference">
+  <Card title="I need endpoint details" href="/api-reference">
     Review request fields, response fields, authentication, and statuses.
   </Card>
 
-  <Card title="Something is failing" icon="wrench" href="/troubleshooting">
+  <Card title="Something is failing" href="/troubleshooting">
     Diagnose keys, JSON, URLs, SDK settings, limits, and timeouts.
   </Card>
 </CardGroup>
@@ -106,15 +167,15 @@ A successful response contains the answer at `choices[0].message.content`.
 - Provide a useful fallback when the API is unavailable.
 
 <CardGroup cols={3}>
-  <Card title="Best practices" icon="shield-halved" href="/best-practices">
+  <Card title="Best practices" href="/best-practices">
     Security and production-readiness checklist.
   </Card>
 
-  <Card title="Limits" icon="gauge" href="/limits">
+  <Card title="Limits" href="/limits">
     Rate limits, token usage, and efficient requests.
   </Card>
 
-  <Card title="FAQ" icon="circle-question" href="/faq">
+  <Card title="FAQ" href="/faq">
     Short answers to common integration questions.
   </Card>
 </CardGroup>

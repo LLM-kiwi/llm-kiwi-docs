@@ -5,6 +5,67 @@ description: "Copy-paste LLM.kiwi code examples in cURL, Python, and Node.js for
 icon: "code"
 ---
 
+<style>
+  {`
+    .chat-assistant-floating-input,
+    chat-assistant-floating-input {
+    display: none !important;
+    }
+
+    #assistant-entry,
+    #assistant-entry-mobile {
+    position: fixed !important;
+    right: max(1rem, env(safe-area-inset-right)) !important;
+    bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+    z-index: 60 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 3rem !important;
+    min-width: 3rem !important;
+    height: 3rem !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    color: #fff !important;
+    background: #16a34a !important;
+    border: 1px solid rgb(255 255 255 / 20%) !important;
+    border-radius: 9999px !important;
+    box-shadow: 0 10px 25px rgb(15 23 42 / 18%), 0 2px 8px rgb(15 23 42 / 12%) !important;
+    }
+
+    #assistant-entry:hover,
+    #assistant-entry-mobile:hover {
+    background: #15803d !important;
+    }
+
+    #assistant-entry:focus-visible,
+    #assistant-entry-mobile:focus-visible {
+    outline: 3px solid rgb(22 163 74 / 35%) !important;
+    outline-offset: 3px !important;
+    }
+
+    #assistant-entry svg,
+    #assistant-entry-mobile svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    color: currentcolor !important;
+    }
+
+    @media (min-width: 768px) {
+    #assistant-entry-mobile { display: none !important; }
+    }
+
+    @media (max-width: 767px) {
+    #assistant-entry { display: none !important; }
+    }
+
+    @media print {
+    #assistant-entry,
+    #assistant-entry-mobile { display: none !important; }
+    }
+    `}
+</style>
+
 The examples on this page use `https://api.llm.kiwi/v1` and the OpenAI-compatible chat completions interface.
 
 <Warning>
@@ -215,11 +276,11 @@ for attempt in range(3):
 Retry rate limits and temporary server errors with a delay. Do not automatically retry invalid requests or authentication errors.
 
 <CardGroup cols={2}>
-  <Card title="SDK setup" icon="cubes" href="/sdks">
+  <Card title="SDK setup" href="/sdks">
     Install and configure supported client libraries.
   </Card>
 
-  <Card title="Troubleshooting" icon="wrench" href="/troubleshooting">
+  <Card title="Troubleshooting" href="/troubleshooting">
     Fix authentication, request, and connection problems.
   </Card>
 </CardGroup>
